@@ -10,8 +10,11 @@ import com.example.lendlyapp.R
 
 // Set of Material typography styles to start with
 
-val interFonts = FontFamily(
+val interFontsRegular = FontFamily(
     Font(R.font.inter_24_regular, FontWeight.Normal),
+)
+
+val interFontsSemiBold = FontFamily(
     Font(R.font.inter_24_semi_bold, FontWeight.SemiBold)
 )
 

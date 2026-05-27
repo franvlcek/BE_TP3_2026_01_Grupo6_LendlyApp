@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
-import com.example.lendlyapp.ui.theme.interFonts
+import com.example.lendlyapp.ui.theme.interFontsSemiBold
+import com.example.lendlyapp.ui.theme.interFontsRegular
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +38,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
         modifier = modifier,
-        fontFamily = interFonts,
+        fontFamily = interFontsRegular,
         fontSize = 24.sp,
     )
 }
