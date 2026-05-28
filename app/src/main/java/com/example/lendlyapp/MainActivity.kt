@@ -20,30 +20,56 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.example.lendlyapp.pages.home.HomeScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.lendlyapp.components.BottomNavigationBar
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             LendlyAppTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    // El NavController es el que maneja el historial de pantallas
-                    val navController = rememberNavController()
+                // El NavController es el que maneja el historial de pantallas
+                val navController = rememberNavController()
+                
+                // Observamos la ruta actual para saber qué item resaltar en la barra
+                val navBackStackEntry = navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry.value?.destination?.route
 
-                    // Configuramos el contenedor de navegación. Arranca en el Splash!
+                // Scaffold nos da la estructura base (Barra de abajo + contenido)
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    bottomBar = {
+                        // Solo mostramos la barra si NO estamos en Splash ni en Login
+                        if (currentRoute != Screen.Splash.route && currentRoute != Screen.Login.route) {
+                            BottomNavigationBar(
+                                currentRoute = currentRoute,
+                                onNavigate = { route ->
+                                    navController.navigate(route) {
+                                        // Evita crear múltiples copias de la misma pantalla
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                }
+                            )
+                        }
+                    }
+                ) { innerPadding ->
+                    // El NavHost ahora vive dentro del Scaffold y respeta el padding de la barra
                     NavHost(
                         navController = navController,
-                        startDestination = Screen.Splash.route
+                        startDestination = Screen.Splash.route,
+                        modifier = Modifier.padding(innerPadding)
                     ) {
                         // 1. Definimos la pantalla de Splash
                         composable(Screen.Splash.route) {
                             SplashScreen(
                                 onNavigateToLogin = {
-                                    // Al presionar el botón "Get Started", saltamos al Login
-                                    // y removemos el Splash del historial para que no se pueda volver atrás
                                     navController.navigate(Screen.Login.route) {
                                         popUpTo(Screen.Splash.route) { inclusive = true }
                                     }
@@ -58,7 +84,6 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 viewModel = loginViewModel,
                                 onNavigateToHome = {
-                                    // Cuando el login es exitoso, vamos al Home
                                     navController.navigate(Screen.Home.route) {
                                         popUpTo(Screen.Login.route) { inclusive = true }
                                     }
