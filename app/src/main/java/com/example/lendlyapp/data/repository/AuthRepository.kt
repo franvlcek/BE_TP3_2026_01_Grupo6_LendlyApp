@@ -25,7 +25,7 @@ class AuthRepository @Inject constructor(
             if (response.token.isNotEmpty()) {
                 sessionManager.saveSession(
                     token = response.token,
-                    userId = response.id
+                    userId = response.user.id.toString()
                 )
             }
 

@@ -1,2 +1,39 @@
 package com.example.lendlyapp.di
 
+import com.example.lendlyapp.data.network.ApiKeyInterceptor
+import com.example.lendlyapp.data.network.ApiService
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object AppModule {
+
+    // URL Base provista en la consigna del parcial
+    private const val BASE_URL = "https://6d710e79-f4ca-4651-909f-7dd13bd29968.mock.pstmn.io/"
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(apiKeyInterceptor: ApiKeyInterceptor): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(apiKeyInterceptor) // Inyecta el header x-api-key automáticamente
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideApiService(okHttpClient: OkHttpClient): ApiService {
+        return Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create()) // Gson solicitado por la cátedra
+            .build()
+            .create(ApiService::class.java)
+    }
+}
