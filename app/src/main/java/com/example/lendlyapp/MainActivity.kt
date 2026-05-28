@@ -17,6 +17,9 @@ import com.example.lendlyapp.pages.login.LoginScreen
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+import com.example.lendlyapp.pages.home.HomeScreen
+import com.example.lendlyapp.pages.history.HistoryScreen
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,9 +58,22 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(
                                 viewModel = loginViewModel,
                                 onNavigateToHome = {
-                                    Log.d("MainActivity", "LOGIN EXITOSO")
+                                    // Cuando el login es exitoso, vamos al Home
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
+                                    }
                                 }
                             )
+                        }
+
+                        // 3. Pantalla de Home
+                        composable(Screen.Home.route) {
+                            HomeScreen()
+                        }
+
+                        // 4. Pantalla de Historial
+                        composable(Screen.History.route) {
+                            HistoryScreen()
                         }
                     }
                 }
