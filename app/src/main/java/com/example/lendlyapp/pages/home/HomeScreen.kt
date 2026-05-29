@@ -10,9 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.LazyRow
 import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.LoanItem
+import com.example.lendlyapp.R
+import com.example.lendlyapp.components.ProductCard
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
+import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @Composable
 fun HomeScreen() {
@@ -31,22 +35,7 @@ fun HomeScreen() {
         
         // 2. Sección Unpaid Loans
         item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Unpaid Loans",
-                    fontFamily = interFontsSemiBold,
-                    fontSize = 18.sp
-                )
-                TextButton(onClick = { /* TODO */ }) {
-                    Text(text = "See All", color = Color.Gray)
-                }
-            }
+            SectionHeader(title = "Unpaid Loans", onSeeAllClick = { /* TODO */ })
         }
         
         item {
@@ -54,7 +43,7 @@ fun HomeScreen() {
                 companyName = "Nike Inc.",
                 amount = "₱400.00",
                 dueDate = "Fees of February",
-                color = Color.Black
+                logoResId = R.drawable.logo_nike
             )
         }
         
@@ -63,8 +52,50 @@ fun HomeScreen() {
                 companyName = "Apple Inc.",
                 amount = "₱1,500.00",
                 dueDate = "Fees of March",
-                color = Color.LightGray
+                logoResId = R.drawable.logo_apple
             )
+        }
+
+        // 3. Sección Recommended For You
+        item {
+            SectionHeader(title = "Recommended For You", onSeeAllClick = { /* TODO */ })
+        }
+
+        item {
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(5) {
+                    ProductCard(
+                        name = "iPhone 12 Pro Max",
+                        price = "₱1,200 x 24 mo"
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun SectionHeader(
+    title: String,
+    onSeeAllClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            fontFamily = interFontsSemiBold,
+            fontSize = 18.sp
+        )
+        TextButton(onClick = onSeeAllClick) {
+            Text(text = "See All", color = Color.Gray)
         }
     }
 }
