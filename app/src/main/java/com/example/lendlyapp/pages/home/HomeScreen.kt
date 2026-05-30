@@ -22,7 +22,6 @@ import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.LoanItem
 import com.example.lendlyapp.components.ProductCard
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
-import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @Composable
 fun HomeScreen(
@@ -57,7 +56,7 @@ fun HomeScreen(
                     companyName = "Nike Inc.",
                     amount = "₱400.00",
                     dueDate = "Fees of February",
-                    logoResId = R.drawable.logo_nike // Aseguramos que sea Nike el que va arriba
+                    logoResId = R.drawable.logo_nike // Ahora que corregiste los nombres, asignamos el correcto
                 )
             }
             
@@ -70,7 +69,7 @@ fun HomeScreen(
                     companyName = "Apple Inc.",
                     amount = "₱1,500.00",
                     dueDate = "Fees of March",
-                    logoResId = R.drawable.logo_apple // Aseguramos que sea Apple el que va abajo
+                    logoResId = R.drawable.logo_apple // Ahora que corregiste los nombres, asignamos el correcto
                 )
             }
 
