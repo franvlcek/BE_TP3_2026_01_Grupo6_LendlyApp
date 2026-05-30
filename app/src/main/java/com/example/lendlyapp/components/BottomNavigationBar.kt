@@ -7,11 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.R
 import com.example.lendlyapp.Screen
-import com.example.lendlyapp.ui.theme.interFontsRegular
+import com.example.lendlyapp.ui.theme.interFontsSemiBold
 
 data class BottomNavItem(
     val name: String,
@@ -33,9 +34,9 @@ fun BottomNavigationBar(
     )
 
     NavigationBar(
-        modifier = Modifier.height(70.dp), // Ajustado para que no sea tan alto pero quepa todo
+        modifier = Modifier.height(80.dp),
         containerColor = Color.White,
-        tonalElevation = 0.dp // Quitamos la elevación tonal para que sea blanco puro
+        tonalElevation = 0.dp
     ) {
         items.forEach { item ->
             val isSelected = currentRoute == item.route
@@ -46,22 +47,23 @@ fun BottomNavigationBar(
                     Icon(
                         painter = painterResource(id = item.iconResId), 
                         contentDescription = item.name,
-                        modifier = Modifier.size(28.dp), // Aumentado para que no se vea chiquito
-                        tint = Color.Unspecified // Mantiene el color original del PNG
+                        modifier = Modifier.size(24.dp),
+                        tint = if (isSelected) Color.Unspecified else Color.Gray
                     ) 
                 },
                 label = { 
                     Text(
                         text = item.name,
                         fontSize = 12.sp,
-                        fontFamily = interFontsRegular,
+                        fontFamily = interFontsSemiBold,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                         color = if (isSelected) Color.Black else Color.Gray
                     ) 
                 },
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color(0xFFE8F5E9), // Píldora verde clarito
+                    indicatorColor = Color(0xFFE8F5E9),
                     selectedIconColor = Color.Unspecified,
-                    unselectedIconColor = Color.Unspecified,
+                    unselectedIconColor = Color.Gray,
                     selectedTextColor = Color.Black,
                     unselectedTextColor = Color.Gray
                 )

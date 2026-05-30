@@ -1,15 +1,20 @@
 package com.example.lendlyapp.pages.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.R
@@ -23,80 +28,128 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 fun HomeScreen(
     onNavigateToCashIn: () -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 8.dp)
-    ) {
-        // 1. Tarjeta de Saldo
-        item {
-            AccountBalanceCard(
-                balance = "₱ 2,500.00",
-                onCashInClick = onNavigateToCashIn
-            )
+    Scaffold(
+        topBar = {
+            HomeTopBar()
         }
-        
-        // 2. Sección Unpaid Loans
-        item {
-            SectionHeader(title = "Unpaid Loans", onSeeAllClick = { /* TODO */ })
-        }
-        
-        item {
-            LoanItem(
-                companyName = "Nike Inc.",
-                amount = "₱400.00",
-                dueDate = "Fees of February",
-                logoResId = R.drawable.logo_nike
-            )
-        }
-        
-        item {
-            LoanItem(
-                companyName = "Apple Inc.",
-                amount = "₱1,500.00",
-                dueDate = "Fees of March",
-                logoResId = R.drawable.logo_apple
-            )
-        }
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(top = 8.dp)
+        ) {
+            // 1. Tarjeta de Saldo
+            item {
+                AccountBalanceCard(
+                    balance = "₱ 2,500.00",
+                    onCashInClick = onNavigateToCashIn
+                )
+            }
+            
+            // 2. Sección Unpaid Loans
+            item {
+                SectionHeader(title = "Unpaid Loans", onSeeAllClick = { /* TODO */ })
+            }
+            
+            item {
+                LoanItem(
+                    companyName = "Nike Inc.",
+                    amount = "₱400.00",
+                    dueDate = "Fees of February",
+                    logoResId = R.drawable.logo_nike // Aseguramos que sea Nike el que va arriba
+                )
+            }
+            
+            item {
+                Spacer(modifier = Modifier.height(16.dp)) 
+            }
+            
+            item {
+                LoanItem(
+                    companyName = "Apple Inc.",
+                    amount = "₱1,500.00",
+                    dueDate = "Fees of March",
+                    logoResId = R.drawable.logo_apple // Aseguramos que sea Apple el que va abajo
+                )
+            }
 
-        // 3. Sección Recommended For You
-        item {
-            SectionHeader(title = "Recommended For You", onSeeAllClick = { /* TODO */ })
-        }
+            // 3. Sección Recommended For You
+            item {
+                SectionHeader(title = "Recommended For You", onSeeAllClick = { /* TODO */ })
+            }
 
-        item {
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 10.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    ProductCard(
-                        name = "iPhone 12 Pro Max",
-                        price = "₱1,200 x 24 mo",
-                        imageResId = R.drawable.img_iphone
-                    )
-                }
-                item {
-                    ProductCard(
-                        name = "Nike Sneakers",
-                        price = "₱800 x 12 mo",
-                        imageResId = R.drawable.img_sneakers
-                    )
-                }
-                item {
-                    ProductCard(
-                        name = "Headphones",
-                        price = "₱500 x 6 mo",
-                        imageResId = R.drawable.img_headphones
-                    )
+            item {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    item {
+                        ProductCard(
+                            name = "iPhone 12 Pro Max",
+                            price = "₱1,200 x 24 mo",
+                            imageResId = R.drawable.img_iphone
+                        )
+                    }
+                    item {
+                        ProductCard(
+                            name = "Headphones",
+                            price = "₱500 x 6 mo",
+                            imageResId = R.drawable.img_headphones
+                        )
+                    }
+                    item {
+                        ProductCard(
+                            name = "Nike Sneakers",
+                            price = "₱800 x 12 mo",
+                            imageResId = R.drawable.img_sneakers
+                        )
+                    }
                 }
             }
-        }
-        
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
+            
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeTopBar() {
+    CenterAlignedTopAppBar(
+        title = {
+            Image(
+                painter = painterResource(id = R.drawable.frame_134), 
+                contentDescription = "Lendly Logo",
+                modifier = Modifier.height(24.dp)
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(
+                    imageVector = Icons.Default.Person, 
+                    contentDescription = "Profile",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.Black
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { /* TODO */ }) {
+                Icon(
+                    imageVector = Icons.Default.Notifications, 
+                    contentDescription = "Notifications",
+                    modifier = Modifier.size(32.dp),
+                    tint = Color.Black
+                )
+            }
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = Color.White
+        )
+    )
 }
 
 @Composable
@@ -114,7 +167,8 @@ fun SectionHeader(
         Text(
             text = title,
             fontFamily = interFontsSemiBold,
-            fontSize = 18.sp
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
         )
         TextButton(
             onClick = onSeeAllClick,
@@ -123,16 +177,17 @@ fun SectionHeader(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "See All", 
-                    color = Color.Gray, 
+                    color = Color.Black, // Bold y Negro
                     fontSize = 14.sp,
-                    fontFamily = interFontsRegular
+                    fontFamily = interFontsSemiBold,
+                    fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = Color.Gray
+                    tint = Color.Black // Negro para combinar con el texto bold
                 )
             }
         }
