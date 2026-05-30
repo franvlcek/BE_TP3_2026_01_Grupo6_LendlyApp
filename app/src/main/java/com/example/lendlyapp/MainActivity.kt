@@ -19,6 +19,7 @@ import com.example.lendlyapp.pages.login.LoginScreen
 import com.example.lendlyapp.pages.home.HomeScreen
 import com.example.lendlyapp.pages.home.CashInOptionsScreen
 import com.example.lendlyapp.pages.home.OnlineCashInScreen
+import com.example.lendlyapp.pages.home.OverTheCounterScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
@@ -104,6 +105,15 @@ class MainActivity : ComponentActivity() {
                             OnlineCashInScreen(
                                 onNavigateBack = { navController.popBackStack() },
                                 onBankSelected = { bank ->
+                                    navController.navigate(Screen.CashInAmount.route)
+                                }
+                            )
+                        }
+
+                        composable(Screen.OverTheCounter.route) {
+                            OverTheCounterScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onPartnerSelected = { partner ->
                                     navController.navigate(Screen.CashInAmount.route)
                                 }
                             )
