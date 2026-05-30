@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.lendlyapp.pages.SplashScreen
 import com.example.lendlyapp.pages.login.LoginScreen
+import com.example.lendlyapp.pages.onboarding.OnboardingContainer
 import com.example.lendlyapp.pages.home.HomeScreen
 import com.example.lendlyapp.pages.home.CashInOptionsScreen
 import com.example.lendlyapp.pages.home.OnlineCashInScreen
@@ -65,10 +66,20 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable(Screen.Splash.route) {
                             SplashScreen(onNavigateToLogin = {
-                                navController.navigate(Screen.Login.route) {
+                                navController.navigate(Screen.Onboarding.route) {
                                     popUpTo(Screen.Splash.route) { inclusive = true }
                                 }
                             })
+                        }
+
+                        composable(Screen.Onboarding.route) {
+                            OnboardingContainer(
+                                onFinish = {
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                                    }
+                                }
+                            )
                         }
 
                         composable(Screen.Login.route) {

@@ -18,6 +18,10 @@ val interFontsSemiBold = FontFamily(
     Font(R.font.inter_24_semi_bold, FontWeight.SemiBold)
 )
 
+val montserratFontsExtraBold = FontFamily(
+    Font(R.font.montserrat_extra_bold, FontWeight.ExtraBold)
+)
+
 val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.Default,
