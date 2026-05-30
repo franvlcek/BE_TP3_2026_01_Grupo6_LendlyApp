@@ -20,6 +20,8 @@ import com.example.lendlyapp.pages.home.HomeScreen
 import com.example.lendlyapp.pages.home.CashInOptionsScreen
 import com.example.lendlyapp.pages.home.OnlineCashInScreen
 import com.example.lendlyapp.pages.home.OverTheCounterScreen
+import com.example.lendlyapp.pages.home.CashInAmountScreen
+import com.example.lendlyapp.pages.home.TransactionSuccessScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
@@ -115,6 +117,26 @@ class MainActivity : ComponentActivity() {
                                 onNavigateBack = { navController.popBackStack() },
                                 onPartnerSelected = { partner ->
                                     navController.navigate(Screen.CashInAmount.route)
+                                }
+                            )
+                        }
+
+                        composable(Screen.CashInAmount.route) {
+                            CashInAmountScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNextClick = { amount ->
+                                    navController.navigate(Screen.TransactionSuccess.route)
+                                }
+                            )
+                        }
+
+                        composable(Screen.TransactionSuccess.route) {
+                            TransactionSuccessScreen(
+                                amount = "2,500.00",
+                                onDoneClick = {
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.Home.route) { inclusive = true }
+                                    }
                                 }
                             )
                         }
