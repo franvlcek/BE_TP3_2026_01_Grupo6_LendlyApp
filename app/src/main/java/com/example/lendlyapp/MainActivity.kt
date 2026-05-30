@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.lendlyapp.pages.SplashScreen
 import com.example.lendlyapp.pages.login.LoginScreen
+import com.example.lendlyapp.pages.onboarding.OnboardingContainer
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = Screen.Splash.route
+
                     ) {
                         // 1. Definimos la pantalla de Splash
                         composable(Screen.Splash.route) {
@@ -41,8 +43,18 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToLogin = {
                                     // Al presionar el botón "Get Started", saltamos al Login
                                     // y removemos el Splash del historial para que no se pueda volver atrás
-                                    navController.navigate(Screen.Login.route) {
+                                    navController.navigate(Screen.Onboarding.route) {
                                         popUpTo(Screen.Splash.route) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+
+                        composable(Screen.Onboarding.route) {
+                            OnboardingContainer(
+                                onFinish = {
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Onboarding.route) { inclusive = true }
                                     }
                                 }
                             )
