@@ -1,13 +1,16 @@
 package com.example.lendlyapp.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,45 +21,56 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 fun ProductCard(
     name: String,
     price: String,
-    imageUrl: String = "" // Placeholder para cuando usemos Coil
+    imageResId: Int? = null
 ) {
     Card(
         modifier = Modifier
-            .width(140.dp)
-            .padding(8.dp),
+            .width(150.dp) // Un poco más ancho para que la imagen luzca
+            .padding(6.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(12.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Column(
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier.padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Placeholder para la imagen del producto
+            // Contenedor de la imagen más grande para que no se vea chiquito
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(100.dp)
-                    .background(Color(0xFFF5F5F5), shape = RoundedCornerShape(8.dp))
+                    .height(90.dp)
+                    .background(Color(0xFFF9F9F9), shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
             ) {
-                // Aquí irá el AsyncImage de Coil después
+                if (imageResId != null) {
+                    Image(
+                        painter = painterResource(id = imageResId),
+                        contentDescription = name,
+                        modifier = Modifier.fillMaxSize().padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             
-            Text(
-                text = name,
-                fontFamily = interFontsSemiBold,
-                fontSize = 12.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            
-            Text(
-                text = price,
-                fontFamily = interFontsRegular,
-                fontSize = 11.sp,
-                color = Color.Gray
-            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = name,
+                    fontFamily = interFontsSemiBold,
+                    fontSize = 13.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                Text(
+                    text = price,
+                    fontFamily = interFontsRegular,
+                    fontSize = 11.sp,
+                    color = Color.Gray
+                )
+            }
         }
     }
 }

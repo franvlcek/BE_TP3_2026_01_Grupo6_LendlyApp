@@ -2,18 +2,19 @@ package com.example.lendlyapp.pages.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.lazy.LazyRow
+import com.example.lendlyapp.R
 import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.LoanItem
-import com.example.lendlyapp.R
 import com.example.lendlyapp.components.ProductCard
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
@@ -63,16 +64,35 @@ fun HomeScreen() {
 
         item {
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 8.dp),
+                contentPadding = PaddingValues(horizontal = 10.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                items(5) {
+                item {
                     ProductCard(
                         name = "iPhone 12 Pro Max",
-                        price = "₱1,200 x 24 mo"
+                        price = "₱1,200 x 24 mo",
+                        imageResId = R.drawable.img_iphone
+                    )
+                }
+                item {
+                    ProductCard(
+                        name = "Nike Sneakers",
+                        price = "₱800 x 12 mo",
+                        imageResId = R.drawable.img_sneakers
+                    )
+                }
+                item {
+                    ProductCard(
+                        name = "Headphones",
+                        price = "₱500 x 6 mo",
+                        imageResId = R.drawable.img_headphones
                     )
                 }
             }
+        }
+        
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -94,8 +114,25 @@ fun SectionHeader(
             fontFamily = interFontsSemiBold,
             fontSize = 18.sp
         )
-        TextButton(onClick = onSeeAllClick) {
-            Text(text = "See All", color = Color.Gray)
+        TextButton(
+            onClick = onSeeAllClick,
+            contentPadding = PaddingValues(0.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = "See All", 
+                    color = Color.Gray, 
+                    fontSize = 14.sp,
+                    fontFamily = interFontsRegular
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = Color.Gray
+                )
+            }
         }
     }
 }

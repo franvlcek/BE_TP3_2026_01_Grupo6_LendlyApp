@@ -1,21 +1,22 @@
 package com.example.lendlyapp.components
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.lendlyapp.R
 import com.example.lendlyapp.Screen
+import com.example.lendlyapp.ui.theme.interFontsRegular
 
-// Definimos un modelo de datos simple para cada item de la barra
 data class BottomNavItem(
     val name: String,
     val route: String,
-    val icon: ImageVector
+    val iconResId: Int
 )
 
 @Composable
@@ -24,23 +25,46 @@ fun BottomNavigationBar(
     onNavigate: (String) -> Unit
 ) {
     val items = listOf(
-        BottomNavItem("Home", Screen.Home.route, Icons.Default.Home),
-        BottomNavItem("Loan", "loan", Icons.Default.Info),
-        BottomNavItem("Shop", "shop", Icons.Default.ShoppingCart),
-        BottomNavItem("History", Screen.History.route, Icons.Default.List),
-        BottomNavItem("Manage", "manage", Icons.Default.Person)
+        BottomNavItem("Home", Screen.Home.route, R.drawable.ic_home),
+        BottomNavItem("Loan", "loan", R.drawable.ic_loan),
+        BottomNavItem("Shop", "shop", R.drawable.ic_shop),
+        BottomNavItem("History", Screen.History.route, R.drawable.ic_history),
+        BottomNavItem("Manage", "manage", R.drawable.ic_manage)
     )
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.primary
+        modifier = Modifier.height(70.dp), // Ajustado para que no sea tan alto pero quepa todo
+        containerColor = Color.White,
+        tonalElevation = 0.dp // Quitamos la elevación tonal para que sea blanco puro
     ) {
         items.forEach { item ->
+            val isSelected = currentRoute == item.route
             NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.name) },
-                label = { Text(text = item.name) },
-                selected = currentRoute == item.route,
-                onClick = { onNavigate(item.route) }
+                selected = isSelected,
+                onClick = { onNavigate(item.route) },
+                icon = { 
+                    Icon(
+                        painter = painterResource(id = item.iconResId), 
+                        contentDescription = item.name,
+                        modifier = Modifier.size(28.dp), // Aumentado para que no se vea chiquito
+                        tint = Color.Unspecified // Mantiene el color original del PNG
+                    ) 
+                },
+                label = { 
+                    Text(
+                        text = item.name,
+                        fontSize = 12.sp,
+                        fontFamily = interFontsRegular,
+                        color = if (isSelected) Color.Black else Color.Gray
+                    ) 
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color(0xFFE8F5E9), // Píldora verde clarito
+                    selectedIconColor = Color.Unspecified,
+                    unselectedIconColor = Color.Unspecified,
+                    selectedTextColor = Color.Black,
+                    unselectedTextColor = Color.Gray
+                )
             )
         }
     }

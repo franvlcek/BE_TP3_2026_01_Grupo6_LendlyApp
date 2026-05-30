@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.lendlyapp.R
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
@@ -26,28 +25,28 @@ fun LoanItem(
     amount: String,
     dueDate: String,
     logoResId: Int? = null,
-    backgroundColor: Color = Color(0xFFF5F5F5)
+    backgroundColor: Color = Color(0xFFF9F9F9)
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = 16.dp, vertical = 6.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        shape = RoundedCornerShape(12.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(12.dp)
+                .padding(16.dp)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Logo de la empresa
+                // Contenedor del logo más grande como en Figma
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .background(backgroundColor, shape = CircleShape)
                         .clip(CircleShape),
                     contentAlignment = Alignment.Center
@@ -56,19 +55,19 @@ fun LoanItem(
                         Image(
                             painter = painterResource(id = logoResId),
                             contentDescription = "Logo $companyName",
-                            modifier = Modifier.size(24.dp), // Ajustamos el tamaño del logo dentro del círculo
+                            modifier = Modifier.size(28.dp),
                             contentScale = ContentScale.Fit
                         )
                     }
                 }
                 
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(14.dp))
                 
                 Column {
                     Text(
                         text = companyName,
                         fontFamily = interFontsSemiBold,
-                        fontSize = 14.sp
+                        fontSize = 15.sp
                     )
                     Text(
                         text = dueDate,
@@ -79,12 +78,14 @@ fun LoanItem(
                 }
             }
             
-            Text(
-                text = amount,
-                fontFamily = interFontsSemiBold,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = amount,
+                    fontFamily = interFontsSemiBold,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
