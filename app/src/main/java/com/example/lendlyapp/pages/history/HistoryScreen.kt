@@ -1,6 +1,7 @@
 package com.example.lendlyapp.pages.history
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -12,6 +13,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.components.HistoryItem
@@ -21,9 +24,17 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistoryScreen() {
+fun HistoryScreen(
+    onNavigateToDetail: () -> Unit
+) {
     var searchQuery by remember { mutableStateOf("") }
-    val filters = listOf("All", "Type", "Balance", "Paid Bills", "Added")
+    val filters = listOf(
+        FilterData("All", 50.dp),
+        FilterData("Type", 70.dp),
+        FilterData("Balance", 85.dp),
+        FilterData("Paid Bills", 94.dp),
+        FilterData("Added", 78.dp)
+    )
     var selectedFilter by remember { mutableStateOf("All") }
 
     Column(
@@ -60,26 +71,43 @@ fun HistoryScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 3. Filtros Horizontales
+        // 3. Filtros Horizontales con medidas de Figma
         LazyRow(
             contentPadding = PaddingValues(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(filters) { filter ->
                 FilterChip(
-                    selected = selectedFilter == filter,
-                    onClick = { selectedFilter = filter },
-                    label = { Text(filter, fontFamily = interFontsRegular) },
+                    modifier = Modifier
+                        .height(32.dp)
+                        .widthIn(min = filter.width),
+                    selected = selectedFilter == filter.name,
+                    onClick = { selectedFilter = filter.name },
+                    label = { 
+                        Text(
+                            text = filter.name, 
+                            style = TextStyle(
+                                fontFamily = interFontsSemiBold,
+                                fontWeight = FontWeight.W600,
+                                fontSize = 14.sp,
+                                letterSpacing = 0.1.sp,
+                                lineHeight = 20.sp
+                            )
+                        ) 
+                    },
                     colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFFE8F5E9),
-                        selectedLabelColor = Color(0xFF00C853)
+                        selectedContainerColor = Color(0xFF00C853),
+                        selectedLabelColor = Color.White,
+                        labelColor = Color.Black
                     ),
                     border = FilterChipDefaults.filterChipBorder(
                         enabled = true,
-                        selected = selectedFilter == filter,
+                        selected = selectedFilter == filter.name,
                         borderColor = Color(0xFFF0F0F0),
+                        borderWidth = 1.dp,
                         selectedBorderColor = Color.Transparent
-                    )
+                    ),
+                    shape = RoundedCornerShape(8.dp)
                 )
             }
         }
@@ -99,20 +127,22 @@ fun HistoryScreen() {
             }
 
             item {
-                HistoryItem(
-                    title = "Paid this month",
-                    time = "9:07 AM",
-                    amount = "1,255 PHP",
-                    company = "Apple Inc.",
-                    type = TransactionType.PAYMENT
-                )
+                Box(modifier = Modifier.clickable { onNavigateToDetail() }) {
+                    HistoryItem(
+                        title = "Paid this month",
+                        time = "9:07 AM",
+                        amount = "1,255.00 PHP",
+                        company = "Apple Inc.",
+                        type = TransactionType.PAYMENT
+                    )
+                }
             }
 
             item {
                 HistoryItem(
                     title = "Paid this month",
                     time = "9:07 AM",
-                    amount = "1,255 PHP",
+                    amount = "1,255.00 PHP",
                     company = "Apple Inc.",
                     type = TransactionType.PAYMENT
                 )
@@ -122,7 +152,7 @@ fun HistoryScreen() {
                 HistoryItem(
                     title = "Added",
                     time = "9:07 AM",
-                    amount = "1,200 PHP",
+                    amount = "1,200.00 PHP",
                     company = "Apple Inc.",
                     type = TransactionType.ADDED
                 )
@@ -138,7 +168,6 @@ fun HistoryScreen() {
                 )
             }
             
-            // Reutilizamos el estilo para la sección de préstamos recientes
             item {
                 HistoryItem(
                     title = "iPhone 15 Pro Max",
@@ -151,3 +180,5 @@ fun HistoryScreen() {
         }
     }
 }
+
+data class FilterData(val name: String, val width: androidx.compose.ui.unit.Dp)

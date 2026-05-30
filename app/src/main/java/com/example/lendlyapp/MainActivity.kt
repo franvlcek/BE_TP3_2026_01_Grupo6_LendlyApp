@@ -24,6 +24,7 @@ import com.example.lendlyapp.pages.home.OverTheCounterScreen
 import com.example.lendlyapp.pages.home.CashInAmountScreen
 import com.example.lendlyapp.pages.home.TransactionSuccessScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
+import com.example.lendlyapp.pages.history.TransactionDetailScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,7 +99,15 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.History.route) {
-                            HistoryScreen()
+                            HistoryScreen(onNavigateToDetail = {
+                                navController.navigate(Screen.TransactionDetail.route)
+                            })
+                        }
+
+                        composable(Screen.TransactionDetail.route) {
+                            TransactionDetailScreen(onNavigateBack = {
+                                navController.popBackStack()
+                            })
                         }
 
                         composable(Screen.CashInOptions.route) {
