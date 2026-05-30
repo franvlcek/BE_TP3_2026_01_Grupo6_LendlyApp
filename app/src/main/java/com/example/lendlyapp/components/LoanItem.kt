@@ -43,20 +43,20 @@ fun LoanItem(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Contenedor del logo más grande como en Figma
+                // Logo de la empresa llenando el círculo completo
                 Box(
                     modifier = Modifier
                         .size(48.dp)
-                        .background(backgroundColor, shape = CircleShape)
-                        .clip(CircleShape),
+                        .clip(CircleShape)
+                        .background(backgroundColor),
                     contentAlignment = Alignment.Center
                 ) {
                     if (logoResId != null) {
                         Image(
                             painter = painterResource(id = logoResId),
                             contentDescription = "Logo $companyName",
-                            modifier = Modifier.size(28.dp),
-                            contentScale = ContentScale.Fit
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop // Llenar el círculo
                         )
                     }
                 }

@@ -146,6 +146,7 @@ fun BankRow(bank: BankItemData, onBankSelected: (String) -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
+            // El círculo ahora se llena con la imagen (ContentScale.Crop)
             Box(
                 modifier = Modifier
                     .size(40.dp)
@@ -156,8 +157,8 @@ fun BankRow(bank: BankItemData, onBankSelected: (String) -> Unit) {
                 Image(
                     painter = painterResource(id = bank.logoRes),
                     contentDescription = bank.name,
-                    modifier = Modifier.size(24.dp), // Padding de 8px implícito (40-24)/2
-                    contentScale = ContentScale.Fit
+                    modifier = Modifier.fillMaxSize(), // Imagen completa en el círculo
+                    contentScale = ContentScale.Crop // Asegura que llene el círculo
                 )
             }
             Spacer(modifier = Modifier.width(16.dp))
