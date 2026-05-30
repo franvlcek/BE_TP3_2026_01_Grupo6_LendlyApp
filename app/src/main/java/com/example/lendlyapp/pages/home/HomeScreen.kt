@@ -20,7 +20,9 @@ import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToCashIn: () -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -30,7 +32,7 @@ fun HomeScreen() {
         item {
             AccountBalanceCard(
                 balance = "₱ 2,500.00",
-                onCashInClick = { /* TODO */ }
+                onCashInClick = onNavigateToCashIn
             )
         }
         

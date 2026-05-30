@@ -5,4 +5,14 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Home : Screen("home")
     object History : Screen("history")
+    
+    // Flujo de Cash In
+    object CashInOptions : Screen("cash_in_options")
+    object OnlineCashIn : Screen("online_cash_in")
+    object OverTheCounter : Screen("over_the_counter")
+    object CashInAmount : Screen("cash_in_amount")
+    object TransactionSuccess : Screen("transaction_success")
+    
+    // Notificaciones
+    object Notifications : Screen("notifications")
 }
