@@ -17,9 +17,14 @@ val interFontsRegular = FontFamily(
 val interFontsSemiBold = FontFamily(
     Font(R.font.inter_24_semi_bold, FontWeight.SemiBold)
 )
-
+val interFontsMedium = FontFamily(
+    Font(R.font.inter_18_medium, FontWeight.Medium)
+)
 val montserratFontsExtraBold = FontFamily(
     Font(R.font.montserrat_extra_bold, FontWeight.ExtraBold)
+)
+val montserratFontsSemiBold = FontFamily(
+    Font(R.font.montserrat_semi_bold, FontWeight.SemiBold)
 )
 
 val Typography = Typography(

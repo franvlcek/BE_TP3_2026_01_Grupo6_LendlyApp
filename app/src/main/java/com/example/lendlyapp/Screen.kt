@@ -16,4 +16,5 @@ sealed class Screen(val route: String) {
     
     // Notificaciones
     object Notifications : Screen("notifications")
+    object Manage : Screen("manage")
 }

@@ -25,11 +25,17 @@ import com.example.lendlyapp.pages.home.CashInAmountScreen
 import com.example.lendlyapp.pages.home.TransactionSuccessScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
 import com.example.lendlyapp.components.BottomNavigationBar
+import com.example.lendlyapp.data.session.SessionManager
+import com.example.lendlyapp.pages.manage.ManageScreen
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var sessionManager: SessionManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -65,11 +71,14 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable(Screen.Splash.route) {
-                            SplashScreen(onNavigateToLogin = {
-                                navController.navigate(Screen.Onboarding.route) {
-                                    popUpTo(Screen.Splash.route) { inclusive = true }
+                            SplashScreen(
+                                sessionManager = sessionManager,
+                                onNavigate = { route ->
+                                    navController.navigate(route){
+                                        popUpTo(Screen.Splash.route) { inclusive = true }
+                                    }
                                 }
-                            })
+                                )
                         }
 
                         composable(Screen.Onboarding.route) {
@@ -147,6 +156,16 @@ class MainActivity : ComponentActivity() {
                                 onDoneClick = {
                                     navController.navigate(Screen.Home.route) {
                                         popUpTo(Screen.Home.route) { inclusive = true }
+                                    }
+                                }
+                            )
+                        }
+                        composable(Screen.Manage.route) {
+                            ManageScreen(
+                                sessionManager = sessionManager,
+                                onLogout = {
+                                    navController.navigate(Screen.Onboarding.route) {
+                                        popUpTo(0)
                                     }
                                 }
                             )
