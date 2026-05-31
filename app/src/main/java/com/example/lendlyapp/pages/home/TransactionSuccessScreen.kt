@@ -45,7 +45,8 @@ fun TransactionSuccessScreen(
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         },
         bottomBar = {
@@ -54,15 +55,16 @@ fun TransactionSuccessScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .height(56.dp),
+                    .height(48.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(50.dp)
             ) {
                 Text(
                     text = "Done",
                     fontFamily = interFontsSemiBold,
                     fontSize = 16.sp,
-                    color = Color.White
+                    fontWeight = FontWeight.Bold, // NEGRITA
+                    color = Color(0xFF102000) // Color oscuro de Figma
                 )
             }
         }
@@ -71,12 +73,12 @@ fun TransactionSuccessScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Icono de éxito (Grande, círculo verde con +)
+            // Icono de éxito (Círculo verde con + en negrita)
             Box(
                 modifier = Modifier
                     .size(80.dp)
@@ -84,11 +86,11 @@ fun TransactionSuccessScreen(
                     .background(Color(0xFF00C853)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Success",
-                    tint = Color.White,
-                    modifier = Modifier.size(40.dp)
+                Text(
+                    text = "+",
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold, // NEGRITA
+                    color = Color(0xFF102000) // El color oscuro que pediste
                 )
             }
 
@@ -115,18 +117,20 @@ fun TransactionSuccessScreen(
                 color = Color.Gray
             )
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = Color(0xFFF5F5F5),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray),
+                color = Color.White,
                 modifier = Modifier.padding(vertical = 8.dp)
             ) {
                 Text(
                     text = "Cash-In",
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     fontSize = 12.sp,
-                    fontFamily = interFontsRegular
+                    fontFamily = interFontsSemiBold,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
@@ -134,20 +138,19 @@ fun TransactionSuccessScreen(
 
             // Detalles de la transacción
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = "Transaction Details",
                     fontFamily = interFontsSemiBold,
                     fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                DetailRow(label = "Transfer Fee", value = "-₱15.00")
-                DetailRow(label = "Date & Time", value = "Jul 15, 2024 9:12 AM")
-                DetailRow(label = "Transaction Number", value = "#200412312551", isHighlighted = true)
+                DetailRowItem(label = "Transfer Fee", value = "-₱15.00")
+                DetailRowItem(label = "Date & Time", value = "Jul 15, 2024 9:12 AM")
+                DetailRowItem(label = "Transaction Number", value = "#200412312551", isHighlighted = true)
             }
 
             Spacer(modifier = Modifier.weight(1f))
@@ -164,14 +167,14 @@ fun TransactionSuccessScreen(
                 fontSize = 12.sp,
                 color = Color(0xFF00C853),
                 textDecoration = TextDecoration.Underline,
-                modifier = Modifier.padding(bottom = 24.dp)
+                modifier = Modifier.padding(bottom = 32.dp)
             )
         }
     }
 }
 
 @Composable
-fun DetailRow(label: String, value: String, isHighlighted: Boolean = false) {
+fun DetailRowItem(label: String, value: String, isHighlighted: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -188,6 +191,7 @@ fun DetailRow(label: String, value: String, isHighlighted: Boolean = false) {
             text = value,
             fontFamily = interFontsSemiBold,
             fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
             color = if (isHighlighted) Color(0xFF00C853) else Color.Black
         )
     }

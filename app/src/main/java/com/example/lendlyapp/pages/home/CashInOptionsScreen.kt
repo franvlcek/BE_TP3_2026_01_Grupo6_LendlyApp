@@ -1,5 +1,6 @@
 package com.example.lendlyapp.pages.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,20 +10,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.lendlyapp.R
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
@@ -32,11 +34,11 @@ fun CashInOptionsScreen(
     onNavigateBack: () -> Unit,
     onOptionSelected: (String) -> Unit
 ) {
-    val montserratSemiBold = FontFamily(Font(com.example.lendlyapp.R.font.montserrat_extra_bold, FontWeight.SemiBold))
+    val montserratSemiBold = FontFamily(Font(R.font.montserrat_extra_bold, FontWeight.SemiBold))
 
     Scaffold(
         topBar = {
-            // Título centrado como en Figma
+            // Usamos CenterAlignedTopAppBar con una altura de 64dp para bajar un poco el título
             CenterAlignedTopAppBar(
                 title = { 
                     Text(
@@ -45,16 +47,17 @@ fun CashInOptionsScreen(
                             fontFamily = interFontsSemiBold,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
-                        )
+                        ),
+                        modifier = Modifier.padding(top = 8.dp) // Pequeño ajuste para alineación vertical
                     ) 
                 },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = onNavigateBack, modifier = Modifier.padding(top = 8.dp)) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO Info */ }) {
+                    IconButton(onClick = { /* TODO Info */ }, modifier = Modifier.padding(top = 8.dp)) {
                         Icon(
                             imageVector = Icons.Default.Info, 
                             contentDescription = "Info",
@@ -96,17 +99,19 @@ fun CashInOptionsScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Opción Online Banking con el nuevo icono PNG
                     OptionItem(
                         title = "Online Banking",
                         subtitle = "Pay via other banks or e-wallet",
-                        icon = Icons.Default.Person, // Placeholder para Wallet
+                        iconResId = R.drawable.account_balance_wallet,
                         onClick = { onOptionSelected("online") }
                     )
 
+                    // Opción Over-the-counter
                     OptionItem(
                         title = "Over-the-counter",
                         subtitle = "Pay in cash",
-                        icon = Icons.Default.Notifications, // Placeholder para Counter
+                        iconResId = R.drawable.loan_container, // Cambialo por un pin de ubicación si tenés el PNG
                         onClick = { onOptionSelected("counter") }
                     )
                 }
@@ -119,7 +124,7 @@ fun CashInOptionsScreen(
 fun OptionItem(
     title: String,
     subtitle: String,
-    icon: ImageVector,
+    iconResId: Int,
     onClick: () -> Unit
 ) {
     Row(
@@ -130,7 +135,7 @@ fun OptionItem(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon Container con specs de Figma
+        // Icon Container con specs de Figma (40x40, Background #E5F5EA)
         Box(
             modifier = Modifier
                 .size(40.dp)
@@ -138,11 +143,11 @@ fun OptionItem(
                 .padding(8.dp),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = icon,
+            Image(
+                painter = painterResource(id = iconResId),
                 contentDescription = null,
-                modifier = Modifier.size(width = 18.dp, height = 17.dp),
-                tint = Color(0xFF002203)
+                modifier = Modifier.size(width = 18.dp, height = 17.dp), // Medidas exactas de Figma
+                // Nota: No aplicamos tint si el PNG ya tiene el color #002203
             )
         }
         Spacer(modifier = Modifier.width(16.dp))
