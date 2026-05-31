@@ -38,6 +38,7 @@ import com.example.lendlyapp.pages.verification.ProfileDetailScreen
 import com.example.lendlyapp.pages.verification.SignatureScreen
 import com.example.lendlyapp.pages.verification.CreatePasswordScreen
 import com.example.lendlyapp.pages.verification.RegistrationDoneScreen
+import com.example.lendlyapp.pages.manage.ProfileDetailScreen
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -277,6 +278,17 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(Screen.Onboarding.route) {
                                         popUpTo(0)
                                     }
+                                },
+                                onEditProfile = {
+                                    navController.navigate(Screen.ProfileDetails.route)
+                                }
+                            )
+                        }
+                        composable(Screen.ProfileDetails.route) {
+                            ProfileDetailScreen(
+                                sessionManager = sessionManager,
+                                onBack = {
+                                    navController.popBackStack()
                                 }
                             )
                         }

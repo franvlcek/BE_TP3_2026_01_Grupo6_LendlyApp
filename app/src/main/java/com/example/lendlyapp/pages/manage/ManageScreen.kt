@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.R
 import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.Divider
+import com.example.lendlyapp.components.PrimaryButton
 import com.example.lendlyapp.components.TopBar
 import com.example.lendlyapp.data.session.SessionManager
 import com.example.lendlyapp.pages.home.BankItemData
@@ -40,11 +43,13 @@ import com.example.lendlyapp.ui.theme.interFontsMedium
 import com.example.lendlyapp.ui.theme.interFontsRegular
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.montserratFontsSemiBold
+import kotlinx.coroutines.launch
 
 @Composable
 fun ManageScreen(
     sessionManager: SessionManager,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    onEditProfile: () -> Unit
 ){
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -65,6 +70,8 @@ fun ManageScreen(
                 modifier = Modifier.padding(start = 16.dp)
             )
             Divider("Currently using as")
+            Spacer(modifier = Modifier.padding(top = 16.dp))
+            UserDataCard("Account details","Your personal Account", R.drawable.user_profile,onClick = onEditProfile)
             Divider("General")
 
             LazyColumn{
@@ -109,7 +116,59 @@ fun ManageScreen(
 
     }
 }
+@Composable
+fun UserDataCard(title: String, description:String, id: Int, onClick: () -> Unit){
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Image(
+            painter = painterResource(id),
+            contentDescription = "ManageScreen",
+            modifier = Modifier
+                .size(width = 40.dp, height = 40.dp)
+                .padding(start = 16.dp)
+        )
+        Column() {
+            Text(
+                text= title,
+                modifier = Modifier.padding(start = 16.dp),
+                fontFamily = interFontsRegular,
+                fontSize = 16.sp
+            )
+            Text(
+                text= description,
+                modifier = Modifier.padding(start = 16.dp),
+                fontFamily = interFontsRegular,
+                fontSize = 14.sp,
+                color = Color(0xff6A6C6A)
+            )
+        }
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 20.dp),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            Button(
+                onClick= {
+                    onClick()
+                }, colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF7BF179),
+                    contentColor = Color(0xFF102000),
+                ),
+                shape = RoundedCornerShape(8.dp),
 
+            ) {
+                Text(
+                    text="Edit",
+                    fontFamily = interFontsSemiBold,
+                    fontSize = 14.sp,
+                )
+            }
+        }
+    }
+}
 @Composable
 fun DataCardItem(text: String, id: Int){
     Row(
