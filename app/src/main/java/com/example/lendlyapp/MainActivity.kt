@@ -1,6 +1,7 @@
 package com.example.lendlyapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,15 @@ import com.example.lendlyapp.pages.history.TransactionDetailScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.data.session.SessionManager
 import com.example.lendlyapp.pages.manage.ManageScreen
+import com.example.lendlyapp.pages.verification.FaceRecognitionScreen
+import com.example.lendlyapp.pages.verification.IdVerificationScreen
+import com.example.lendlyapp.pages.verification.SmsVerificationScreen
+import com.example.lendlyapp.pages.verification.VerifiedSuccessScreen
+import com.example.lendlyapp.pages.verification.VerifyPhoneScreen
+import com.example.lendlyapp.pages.verification.ProfileDetailScreen
+import com.example.lendlyapp.pages.verification.SignatureScreen
+import com.example.lendlyapp.pages.verification.CreatePasswordScreen
+import com.example.lendlyapp.pages.verification.RegistrationDoneScreen
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -94,11 +104,102 @@ class MainActivity : ComponentActivity() {
 
                         composable(Screen.Login.route) {
                             val loginViewModel: com.example.lendlyapp.pages.login.LoginViewModel = hiltViewModel()
-                            LoginScreen(viewModel = loginViewModel, onNavigateToHome = {
-                                navController.navigate(Screen.Home.route) {
-                                    popUpTo(Screen.Login.route) { inclusive = true }
+                            LoginScreen(
+                                viewModel = loginViewModel,
+                                onNavigateToHome = {
+                                    // Después del login, vamos a verificar el teléfono
+                                    navController.navigate(Screen.VerifyPhone.route)
                                 }
-                            })
+                            )
+                        }
+
+                        // 3. Verificación de Teléfono
+                        composable(Screen.VerifyPhone.route) {
+                            VerifyPhoneScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToSms = { navController.navigate(Screen.SmsVerification.route) }
+                            )
+                        }
+
+                        // 4. Verificación por SMS
+                        composable(Screen.SmsVerification.route) {
+                            SmsVerificationScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.FaceRecognition.route)
+                                }
+                            )
+                        }
+
+                        // 5. Face Recognition
+                        composable(Screen.FaceRecognition.route) {
+                            FaceRecognitionScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.IdVerification.route)
+                                }
+                            )
+                        }
+
+                        // 6. ID Verification
+                        composable(Screen.IdVerification.route) {
+                            IdVerificationScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.VerifiedSuccess.route)
+                                }
+                            )
+                        }
+
+                        // 7. Success Page
+                        composable(Screen.VerifiedSuccess.route) {
+                            VerifiedSuccessScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.ProfileDetail.route)
+                                }
+                            )
+                        }
+
+                        // 8. Profile Detail
+                        composable(Screen.ProfileDetail.route) {
+                            ProfileDetailScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.Signature.route)
+                                }
+                            )
+                        }
+
+                        // 9. Signature
+                        composable(Screen.Signature.route) {
+                            SignatureScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.CreatePassword.route)
+                                }
+                            )
+                        }
+
+                        // 10. Create Password
+                        composable(Screen.CreatePassword.route) {
+                            CreatePasswordScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.RegistrationDone.route)
+                                }
+                            )
+                        }
+
+                        // 11. Registration Done
+                        composable(Screen.RegistrationDone.route) {
+                            RegistrationDoneScreen(
+                                onDone = {
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(0) { inclusive = true }
+                                    }
+                                }
+                            )
                         }
 
                         composable(Screen.Home.route) {

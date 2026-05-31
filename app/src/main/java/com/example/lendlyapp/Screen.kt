@@ -18,4 +18,15 @@ sealed class Screen(val route: String) {
     // Notificaciones
     object Notifications : Screen("notifications")
     object Manage : Screen("manage")
+
+    // Verificación
+    object VerifyPhone : Screen("verify_phone")
+    object SmsVerification : Screen("sms_verification")
+    object FaceRecognition : Screen("face_recognition")
+    object IdVerification : Screen("id_verification")
+    object VerifiedSuccess : Screen("verified_success")
+    object ProfileDetail : Screen("profile_detail")
+    object Signature : Screen("signature")
+    object CreatePassword : Screen("create_password")
+    object RegistrationDone : Screen("registration_done")
 }

@@ -15,29 +15,30 @@ import com.example.lendlyapp.ui.theme.interFontsSemiBold
 @Composable
 fun PrimaryButton(
     text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-    ){
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
     Button(
-        onClick=onClick, colors = ButtonDefaults.buttonColors(
-        containerColor = Color(0xFF7BF179),
-        contentColor = Color(0xFF102000),
-    ),
-        shape = RoundedCornerShape(100.dp),
-        modifier = modifier
+        onClick = onClick,
+        modifier = modifier,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF7BF179),
+            contentColor = Color(0xFF102000),
+        ),
+        shape = RoundedCornerShape(100.dp)
     ) {
         Text(
-            text=text,
+            text = text,
             fontFamily = interFontsSemiBold,
             fontSize = 14.sp,
-            )
+        )
     }
 }
 
 @Preview
 @Composable
 fun PrimaryButtonPreview(){
-    PrimaryButton("Log In",onClick = {
+    PrimaryButton("Log In", onClick = {
         println("Click en Log In")
     })
 }
