@@ -22,6 +22,7 @@ import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.LoanItem
 import com.example.lendlyapp.components.ProductCard
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
+import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @Composable
 fun HomeScreen(
@@ -56,7 +57,7 @@ fun HomeScreen(
                     companyName = "Nike Inc.",
                     amount = "₱400.00",
                     dueDate = "Fees of February",
-                    logoResId = R.drawable.logo_nike // Ahora que corregiste los nombres, asignamos el correcto
+                    logoResId = R.drawable.logo_nike // Aseguramos que sea Nike el que va arriba
                 )
             }
             
@@ -69,7 +70,7 @@ fun HomeScreen(
                     companyName = "Apple Inc.",
                     amount = "₱1,500.00",
                     dueDate = "Fees of March",
-                    logoResId = R.drawable.logo_apple // Ahora que corregiste los nombres, asignamos el correcto
+                    logoResId = R.drawable.logo_apple // Aseguramos que sea Apple el que va abajo
                 )
             }
 
@@ -120,9 +121,9 @@ fun HomeTopBar() {
     CenterAlignedTopAppBar(
         title = {
             Image(
-                painter = painterResource(id = R.drawable.frame_134), 
+                painter = painterResource(id = R.drawable.icono_tres_capas), 
                 contentDescription = "Lendly Logo",
-                modifier = Modifier.height(24.dp)
+                modifier = Modifier.size(width = 58.dp, height = 20.dp)
             )
         },
         navigationIcon = {

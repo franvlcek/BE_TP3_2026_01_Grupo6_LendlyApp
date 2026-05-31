@@ -1,13 +1,12 @@
 package com.example.lendlyapp.pages.history
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -16,10 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.lendlyapp.R
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
@@ -44,7 +47,8 @@ fun TransactionDetailScreen(
                     IconButton(onClick = { /* TODO */ }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "More")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
     ) { innerPadding ->
@@ -57,7 +61,7 @@ fun TransactionDetailScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 1. Icono de la transacción (72x72)
+            // 1. Icono de la transacción (72x72) con el nuevo arrow_upward
             Box(
                 modifier = Modifier
                     .size(72.dp)
@@ -65,11 +69,9 @@ fun TransactionDetailScreen(
                     .background(Color(0xFF00C853)),
                 contentAlignment = Alignment.Center
             ) {
-                // Usamos KeyboardArrowRight rotado como flecha arriba si no encontramos Upward
-                Icon(
-                    imageVector = Icons.Default.Add, // Placeholder, podes cambiarlo por el de la flecha
+                Image(
+                    painter = painterResource(id = R.drawable.arrow_upward),
                     contentDescription = null,
-                    tint = Color.White,
                     modifier = Modifier.size(32.dp)
                 )
             }
@@ -130,44 +132,60 @@ fun TransactionDetailScreen(
                     text = "Transaction Details",
                     fontFamily = interFontsSemiBold,
                     fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                DetailItemRow(label = "Fee", value = "₱100.00")
-                DetailItemRow(label = "Date & Time", value = "Jul 15, 2024 9:12 AM")
-                DetailItemRow(label = "Transaction Number", value = "#200412312551", isHighlighted = true)
+                DetailRowItem(label = "Fee", value = "₱100.00")
+                DetailRowItem(label = "Date & Time", value = "Jul 15, 2024 9:12 AM")
+                DetailRowItem(label = "Transaction Number", value = "#200412312551", isHighlighted = true)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(60.dp)) // Reducido el espacio para que suba
 
-            // 4. Footer
-            Text(
-                text = "Didn't find what you were looking for?",
-                fontFamily = interFontsRegular,
-                fontSize = 12.sp,
-                color = Color.Gray,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            Text(
-                text = "Go to Help Center",
-                fontFamily = interFontsSemiBold,
-                fontSize = 12.sp,
-                color = Color(0xFF00C853),
-                textDecoration = TextDecoration.Underline,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
+            // 4. Footer con medidas exactas de Figma (259x40)
+            Column(
+                modifier = Modifier.width(259.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Didn't find what you were looking for?",
+                    style = TextStyle(
+                        fontFamily = interFontsRegular,
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color(0xFF6A6C6A)
+                    )
+                )
+                Text(
+                    text = "Go to Help Center",
+                    style = TextStyle(
+                        fontFamily = interFontsSemiBold,
+                        fontWeight = FontWeight.W700, // Bold (700)
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        letterSpacing = 0.25.sp,
+                        textAlign = TextAlign.Center,
+                        color = Color(0xFF00C853),
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+            
+            Spacer(modifier = Modifier.weight(1f)) // Espacio final
         }
     }
 }
 
 @Composable
-fun DetailItemRow(label: String, value: String, isHighlighted: Boolean = false) {
+fun DetailRowItem(label: String, value: String, isHighlighted: Boolean = false) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 10.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(
             text = label,
@@ -179,6 +197,7 @@ fun DetailItemRow(label: String, value: String, isHighlighted: Boolean = false) 
             text = value,
             fontFamily = interFontsSemiBold,
             fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
             color = if (isHighlighted) Color(0xFF00C853) else Color.Black
         )
     }
