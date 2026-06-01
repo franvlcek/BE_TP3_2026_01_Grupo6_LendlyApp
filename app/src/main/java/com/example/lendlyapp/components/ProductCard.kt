@@ -2,6 +2,7 @@ package com.example.lendlyapp.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -21,12 +22,14 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 fun ProductCard(
     name: String,
     price: String,
-    imageResId: Int? = null
+    imageResId: Int? = null,
+    onClick: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier
             .width(150.dp) // Un poco más ancho para que la imagen luzca
-            .padding(6.dp),
+            .padding(6.dp)
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = RoundedCornerShape(16.dp)
