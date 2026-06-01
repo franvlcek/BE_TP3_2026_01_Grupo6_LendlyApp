@@ -21,10 +21,25 @@ class SessionManager @Inject constructor(
     private val _userIdFlow = MutableStateFlow(getUserId())
     val userIdFlow: StateFlow<String?> = _userIdFlow
 
-    fun saveSession(token: String, userId: String) {
+    fun saveSession(
+        token: String,
+        userId: String,
+        fullName: String,
+        email: String,
+        phone: String,
+        birthDate: String?,
+        address: String?,
+        avatar: String
+    ) {
         prefs.edit {
             putString("auth_token", token)
             putString("user_id", userId)
+            putString("full_name", fullName)
+            putString("email", email)
+            putString("phone", phone)
+            putString("birth_date", birthDate)
+            putString("address", address)
+            putString("avatar", avatar)
         }
         _tokenFlow.value = token
         _userIdFlow.value = userId
@@ -32,7 +47,15 @@ class SessionManager @Inject constructor(
 
     fun getToken(): String? = prefs.getString("auth_token", null)
     fun getUserId(): String? = prefs.getString("user_id", null)
+    fun getFullName(): String? = prefs.getString("full_name", null)
+    fun getEmail(): String? = prefs.getString("email", null)
 
+    fun getPhone(): String? = prefs.getString("phone", null)
+
+    fun getBirthDate(): String? = prefs.getString("birth_date", null)
+
+    fun getAddress(): String? = prefs.getString("address", null)
+    fun getAvatar(): String? = prefs.getString("avatar", null)
     fun isSessionActive(): Boolean = getToken() != null
 
 

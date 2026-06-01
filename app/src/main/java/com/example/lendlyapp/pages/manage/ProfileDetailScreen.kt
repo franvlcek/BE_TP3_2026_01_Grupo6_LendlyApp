@@ -46,16 +46,25 @@ fun ProfileDetailScreen(
     sessionManager: SessionManager,
     onBack: () -> Unit
 ){
-    var fullName by remember { mutableStateOf("") }
-    var lastName by remember { mutableStateOf("") }
-    var day by remember { mutableStateOf("") }
-    var month by remember { mutableStateOf("") }
-    var year by remember { mutableStateOf("") }
-    var address by remember { mutableStateOf("") }
+    val name = sessionManager.getFullName() ?: ""
+    val nameParts = name.split(" ")
+    var fullName by remember { mutableStateOf(nameParts.getOrNull(0) ?: "") }
+    var lastName by remember { mutableStateOf(nameParts.getOrNull(1) ?: "") }
+
+    val birthDate = sessionManager.getBirthDate() ?: ""
+    val parts = birthDate.split("-")
+    var day by remember { mutableStateOf(parts.getOrNull(2) ?: "") }
+    var month by remember { mutableStateOf(parts.getOrNull(1) ?: "") }
+    var year by remember { mutableStateOf(parts.getOrNull(0) ?: "") }
+
+    var address by remember { mutableStateOf(sessionManager.getAddress() ?: "") }
     var city by remember { mutableStateOf("") }
     var postalCode by remember { mutableStateOf("") }
-    var phonePrefix by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
+
+    val phone = sessionManager.getPhone() ?: ""
+    val phoneParts = phone.split("-")
+    var phonePrefix by remember { mutableStateOf(phoneParts.getOrNull(0) ?: "") }
+    var phoneNumber by remember { mutableStateOf(phoneParts.getOrNull(1) ?: "") }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.lendlyapp.R
 import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.Divider
@@ -49,7 +50,8 @@ import kotlinx.coroutines.launch
 fun ManageScreen(
     sessionManager: SessionManager,
     onLogout: () -> Unit,
-    onEditProfile: () -> Unit
+    onEditProfile: () -> Unit,
+    onCreditScore: () -> Unit
 ){
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -76,22 +78,51 @@ fun ManageScreen(
 
             LazyColumn{
                 items(1){ card ->
+                    Box(
+                        modifier = Modifier.padding(bottom = 16.dp, top = 16.dp)
+                    ){
                     DataCardItem("Account Details", R.drawable.account_details)
+                    }
                 }
                 items(1){ card ->
-                    DataCardItem("Receiving by email of phone", R.drawable.mailbox)
+                    Box(
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        DataCardItem("Receiving by email of phone", R.drawable.mailbox)
+                    }
                 }
                 items(1){ card ->
-                    DataCardItem("Scheduled pay", R.drawable.calendar)
+                    Box(
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        DataCardItem("Scheduled pay", R.drawable.calendar)
+                    }
+                }
+
+                items(1){ card ->
+                    Box(
+                        modifier = Modifier.padding(bottom = 16.dp)
+                            .fillMaxWidth()
+                            .clickable {
+                                onCreditScore()
+                            }
+                    ){
+                        DataCardItem("Credit Score", R.drawable.score)
+                    }
                 }
                 items(1){ card ->
-                    DataCardItem("Credit Score", R.drawable.score)
+                    Box(
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        DataCardItem("Settings", R.drawable.gear)
+                    }
                 }
                 items(1){ card ->
-                    DataCardItem("Settings", R.drawable.gear)
-                }
-                items(1){ card ->
-                    DataCardItem("Terms and Conditions", R.drawable.document)
+                    Box(
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        DataCardItem("Terms and Conditions", R.drawable.document)
+                    }
                 }
                 items(1){ card ->
                     DataCardItem("Help", R.drawable.help)
@@ -129,6 +160,7 @@ fun UserDataCard(title: String, description:String, id: Int, onClick: () -> Unit
                 .size(width = 40.dp, height = 40.dp)
                 .padding(start = 16.dp)
         )
+
         Column() {
             Text(
                 text= title,
