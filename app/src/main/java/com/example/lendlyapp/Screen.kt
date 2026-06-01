@@ -32,4 +32,7 @@ sealed class Screen(val route: String) {
     object RegistrationDone : Screen("registration_done")
     object ProfileDetails : Screen("profile_details")
     object Loan : Screen("loan")
+    object LoanForm : Screen("loan_form")
+    object LoanSuccess : Screen("loan_success")
+    object ActiveLoans : Screen("active_loans")
 }

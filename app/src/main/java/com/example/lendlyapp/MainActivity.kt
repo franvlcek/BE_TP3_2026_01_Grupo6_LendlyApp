@@ -27,6 +27,9 @@ import com.example.lendlyapp.pages.home.TransactionSuccessScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
 import com.example.lendlyapp.pages.history.TransactionDetailScreen
 import com.example.lendlyapp.pages.loan.LoanScreen
+import com.example.lendlyapp.pages.loan.LoanFormScreen
+import com.example.lendlyapp.pages.loan.LoanSuccessScreen
+import com.example.lendlyapp.pages.loan.ActiveLoansScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.data.session.SessionManager
 import com.example.lendlyapp.pages.manage.CreditScoreScreen
@@ -224,7 +227,34 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Loan.route) {
-                            LoanScreen()
+                            LoanScreen(onNavigateToForm = {
+                                navController.navigate(Screen.LoanForm.route)
+                            })
+                        }
+
+                        composable(Screen.LoanForm.route) {
+                            LoanFormScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateNext = {
+                                    navController.navigate(Screen.LoanSuccess.route)
+                                }
+                            )
+                        }
+
+                        composable(Screen.LoanSuccess.route) {
+                            LoanSuccessScreen(
+                                onDoneClick = {
+                                    navController.navigate(Screen.ActiveLoans.route) {
+                                        popUpTo(Screen.Home.route)
+                                    }
+                                }
+                            )
+                        }
+
+                        composable(Screen.ActiveLoans.route) {
+                            ActiveLoansScreen(
+                                onNavigateBack = { navController.popBackStack() }
+                            )
                         }
 
                         composable(Screen.TransactionDetail.route) {

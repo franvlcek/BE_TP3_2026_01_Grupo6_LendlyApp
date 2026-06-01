@@ -3,6 +3,7 @@ package com.example.lendlyapp.pages.loan
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
@@ -32,7 +33,9 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoanScreen() {
+fun LoanScreen(
+    onNavigateToForm: () -> Unit
+) {
     val montserratSemiBold = FontFamily(Font(R.font.montserrat_extra_bold, FontWeight.SemiBold))
 
     Scaffold(
@@ -98,7 +101,7 @@ fun LoanScreen() {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = onNavigateToForm,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -133,16 +136,18 @@ fun LoanPromoCard(montserratSemiBold: FontFamily) {
         modifier = Modifier
             .width(361.dp)
             .height(196.dp)
-            .clip(RoundedCornerShape(28.dp))
+            .clip(RoundedCornerShape(28.dp)) // Corner/Large
             .background(Color(0xFF7BF179))
     ) {
+        // Imagen de la chica con Zoom (ContentScale.Crop para que no se vea el cuerpo completo)
         Image(
             painter = painterResource(id = R.drawable.chica_con_celular),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .fillMaxHeight(),
-            contentScale = ContentScale.Fit
+                .fillMaxHeight()
+                .width(220.dp), // Ajustamos ancho para controlar el "zoom"
+            contentScale = ContentScale.Crop
         )
 
         Column(
@@ -151,40 +156,46 @@ fun LoanPromoCard(montserratSemiBold: FontFamily) {
                 .fillMaxHeight(),
             verticalArrangement = Arrangement.Center
         ) {
+            // Suggestion chip / Limited Time Offer
             Surface(
-                color = Color(0xFF102000),
-                shape = RoundedCornerShape(50),
-                modifier = Modifier.height(32.dp)
+                color = Color(0xFFE5F5EA), // Fondo claro según tus nuevas specs
+                shape = RoundedCornerShape(8.dp), // Corner/Small
+                modifier = Modifier
+                    .width(166.dp)
+                    .height(32.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(start = 8.dp, end = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Contenedor del icono reloj
                     Box(
                         modifier = Modifier
-                            .size(18.dp)
+                            .size(width = 18.dp, height = 18.dp)
                             .background(Color(0xFFD9D9D9), shape = CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.calendar),
+                            painter = painterResource(id = R.drawable.alarm),
                             contentDescription = null,
-                            modifier = Modifier.size(12.dp)
+                            modifier = Modifier.size(width = 15.98.dp, height = 14.74.dp)
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Limited Time Offer",
-                        color = Color.White,
+                        color = Color(0xFF102000), // Texto oscuro sobre fondo claro
                         fontSize = 12.sp,
                         fontFamily = interFontsRegular,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Texto Safe and secure loans
             Text(
                 text = "Safe and\nsecure loans",
                 style = TextStyle(
@@ -318,17 +329,12 @@ fun HowItWorksSection() {
                     description = "The offered loan amount is based on your credit score.",
                     modifier = Modifier.weight(1f),
                     content = {
-                        Box(modifier = Modifier.size(100.dp), contentAlignment = Alignment.Center) {
-                            Image(painter = painterResource(id = R.drawable.cuerpo), contentDescription = null, modifier = Modifier.fillMaxSize())
-                            Image(painter = painterResource(id = R.drawable.pantalon), contentDescription = null, modifier = Modifier.fillMaxSize())
-                            Image(painter = painterResource(id = R.drawable.rostro), contentDescription = null, modifier = Modifier.fillMaxSize())
-                            Image(painter = painterResource(id = R.drawable.pelo), contentDescription = null, modifier = Modifier.fillMaxSize())
-                            Image(painter = painterResource(id = R.drawable.brazo_izquierdo), contentDescription = null, modifier = Modifier.fillMaxSize())
-                            Box(modifier = Modifier.size(20.dp).align(Alignment.TopEnd).offset(x = (-10).dp, y = 10.dp)) {
-                                Image(painter = painterResource(id = R.drawable.ciculito_verde), contentDescription = null, modifier = Modifier.fillMaxSize())
-                                Image(painter = painterResource(id = R.drawable.tilde_dntro_circulo), contentDescription = null, modifier = Modifier.fillMaxSize())
-                            }
-                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.avatar_con_tarjeta),
+                            contentDescription = null,
+                            modifier = Modifier.size(width = 146.5.dp, height = 104.dp),
+                            contentScale = ContentScale.Fit
+                        )
                     }
                 )
                 // Card 2: Get instant approval
@@ -337,15 +343,12 @@ fun HowItWorksSection() {
                     description = "Everything we need to process si already in the application",
                     modifier = Modifier.weight(1f),
                     content = {
-                        // Usamos un ícono de sistema si falta avatar_segundo_bloque
-                        Box(modifier = Modifier.size(width = 146.5.dp, height = 104.dp), contentAlignment = Alignment.Center) {
-                            Image(
-                                painter = painterResource(id = R.drawable.document),
-                                contentDescription = null,
-                                modifier = Modifier.size(60.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.avatar_segundo_bloque),
+                            contentDescription = null,
+                            modifier = Modifier.size(width = 146.5.dp, height = 104.dp),
+                            contentScale = ContentScale.Fit
+                        )
                     }
                 )
             }
