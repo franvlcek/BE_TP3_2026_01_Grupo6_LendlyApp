@@ -30,5 +30,7 @@ data class UserData(
     @SerializedName("avatar") val avatar: String,
     @SerializedName("creditScore") val creditScore: Int,
     @SerializedName("availableBalance") val availableBalance: Double,
-    @SerializedName("memberSince") val memberSince: String
+    @SerializedName("memberSince") val memberSince: String,
+    @SerializedName("birthDate") val birthDate: String = "",
+    @SerializedName("address") val address: String = ""
 )

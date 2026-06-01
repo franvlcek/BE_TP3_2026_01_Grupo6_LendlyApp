@@ -28,6 +28,7 @@ import com.example.lendlyapp.pages.history.HistoryScreen
 import com.example.lendlyapp.pages.history.TransactionDetailScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.data.session.SessionManager
+import com.example.lendlyapp.pages.manage.CreditScoreScreen
 import com.example.lendlyapp.pages.manage.ManageScreen
 import com.example.lendlyapp.pages.verification.FaceRecognitionScreen
 import com.example.lendlyapp.pages.verification.IdVerificationScreen
@@ -281,11 +282,22 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onEditProfile = {
                                     navController.navigate(Screen.ProfileDetails.route)
+                                },
+                                onCreditScore = {
+                                    navController.navigate(Screen.CreditScore.route)
                                 }
                             )
                         }
                         composable(Screen.ProfileDetails.route) {
                             ProfileDetailScreen(
+                                sessionManager = sessionManager,
+                                onBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+                        composable(Screen.CreditScore.route) {
+                            CreditScoreScreen(
                                 sessionManager = sessionManager,
                                 onBack = {
                                     navController.popBackStack()

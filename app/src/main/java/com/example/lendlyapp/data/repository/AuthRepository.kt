@@ -25,7 +25,13 @@ class AuthRepository @Inject constructor(
             if (response.token.isNotEmpty()) {
                 sessionManager.saveSession(
                     token = response.token,
-                    userId = response.user.id.toString()
+                    userId = response.user.id.toString(),
+                    fullName = response.user.fullName,
+                    email = response.user.email,
+                    phone = response.user.phone,
+                    birthDate = response.user.birthDate,
+                    address = response.user.address,
+                    avatar = response.user.avatar
                 )
             }
 

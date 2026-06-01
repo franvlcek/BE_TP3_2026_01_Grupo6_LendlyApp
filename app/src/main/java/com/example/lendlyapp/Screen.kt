@@ -18,6 +18,7 @@ sealed class Screen(val route: String) {
     // Notificaciones
     object Notifications : Screen("notifications")
     object Manage : Screen("manage")
+    object CreditScore : Screen("credit_score")
 
     // Verificación
     object VerifyPhone : Screen("verify_phone")
