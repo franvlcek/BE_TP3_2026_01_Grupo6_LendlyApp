@@ -26,6 +26,7 @@ import com.example.lendlyapp.pages.home.CashInAmountScreen
 import com.example.lendlyapp.pages.home.TransactionSuccessScreen
 import com.example.lendlyapp.pages.history.HistoryScreen
 import com.example.lendlyapp.pages.history.TransactionDetailScreen
+import com.example.lendlyapp.pages.loan.LoanScreen
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.data.session.SessionManager
 import com.example.lendlyapp.pages.manage.ManageScreen
@@ -60,7 +61,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
                         // Lista de pantallas principales donde se muestra la BottomBar
-                        val mainScreens = listOf(Screen.Home.route, "loan", "shop", Screen.History.route, "manage")
+                        val mainScreens = listOf(
+                            Screen.Home.route, 
+                            Screen.Loan.route, 
+                            "shop", 
+                            Screen.History.route, 
+                            Screen.Manage.route
+                        )
                         if (currentRoute in mainScreens) {
                             BottomNavigationBar(
                                 currentRoute = currentRoute,
@@ -213,6 +220,10 @@ class MainActivity : ComponentActivity() {
                             HistoryScreen(onNavigateToDetail = {
                                 navController.navigate(Screen.TransactionDetail.route)
                             })
+                        }
+
+                        composable(Screen.Loan.route) {
+                            LoanScreen()
                         }
 
                         composable(Screen.TransactionDetail.route) {

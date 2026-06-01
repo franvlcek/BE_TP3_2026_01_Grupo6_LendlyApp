@@ -30,4 +30,5 @@ sealed class Screen(val route: String) {
     object CreatePassword : Screen("create_password")
     object RegistrationDone : Screen("registration_done")
     object ProfileDetails : Screen("profile_details")
+    object Loan : Screen("loan")
 }
