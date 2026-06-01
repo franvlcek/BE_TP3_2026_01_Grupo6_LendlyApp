@@ -22,12 +22,13 @@ import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.LoanItem
 import com.example.lendlyapp.components.ProductCard
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
-import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @Composable
 fun HomeScreen(
-    onNavigateToCashIn: () -> Unit
+    onNavigateToCashIn: () -> Unit,
+    onNavigateToProduct: (String) -> Unit = {}
 ) {
+    val navigateToProduct = onNavigateToProduct
     Scaffold(
         topBar = {
             HomeTopBar()
@@ -88,21 +89,24 @@ fun HomeScreen(
                         ProductCard(
                             name = "iPhone 12 Pro Max",
                             price = "₱1,200 x 24 mo",
-                            imageResId = R.drawable.img_iphone
+                            imageResId = R.drawable.img_iphone,
+                            onClick = { navigateToProduct("iphone") }
                         )
                     }
                     item {
                         ProductCard(
                             name = "Headphones",
                             price = "₱500 x 6 mo",
-                            imageResId = R.drawable.img_headphones
+                            imageResId = R.drawable.img_headphones,
+                            onClick = { navigateToProduct("headphones") }
                         )
                     }
                     item {
                         ProductCard(
                             name = "Nike Sneakers",
                             price = "₱800 x 12 mo",
-                            imageResId = R.drawable.img_sneakers
+                            imageResId = R.drawable.img_sneakers,
+                            onClick = { navigateToProduct("sneakers") }
                         )
                     }
                 }

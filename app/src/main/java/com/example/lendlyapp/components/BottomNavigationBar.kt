@@ -28,7 +28,7 @@ fun BottomNavigationBar(
     val items = listOf(
         BottomNavItem("Home", Screen.Home.route, R.drawable.ic_home),
         BottomNavItem("Loan", Screen.Loan.route, R.drawable.loan_container),
-        BottomNavItem("Shop", "shop", R.drawable.ic_shop),
+        BottomNavItem("Shop", Screen.Shop.route, R.drawable.ic_shop),
         BottomNavItem("History", Screen.History.route, R.drawable.ic_history),
         BottomNavItem("Manage", Screen.Manage.route, R.drawable.ic_manage)
     )

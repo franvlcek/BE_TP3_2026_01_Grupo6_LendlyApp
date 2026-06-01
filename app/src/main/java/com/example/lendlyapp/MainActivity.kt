@@ -1,20 +1,19 @@
 package com.example.lendlyapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
+import androidx.navigation.NavType
 import com.example.lendlyapp.pages.SplashScreen
 import com.example.lendlyapp.pages.login.LoginScreen
 import com.example.lendlyapp.pages.onboarding.OnboardingContainer
@@ -43,7 +42,11 @@ import com.example.lendlyapp.pages.verification.ProfileDetailScreen
 import com.example.lendlyapp.pages.verification.SignatureScreen
 import com.example.lendlyapp.pages.verification.CreatePasswordScreen
 import com.example.lendlyapp.pages.verification.RegistrationDoneScreen
-import com.example.lendlyapp.pages.manage.ProfileDetailScreen
+import com.example.lendlyapp.pages.manage.ProfileDetailScreen as ManageProfileDetailScreen
+import com.example.lendlyapp.pages.shop.ShopScreen
+import com.example.lendlyapp.pages.shop.SearchScreen
+import com.example.lendlyapp.pages.shop.FilterScreen
+import com.example.lendlyapp.pages.shop.ProductScreen
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -68,7 +71,7 @@ class MainActivity : ComponentActivity() {
                         val mainScreens = listOf(
                             Screen.Home.route, 
                             Screen.Loan.route, 
-                            "shop", 
+                            Screen.Shop.route, 
                             Screen.History.route, 
                             Screen.Manage.route
                         )
@@ -215,9 +218,62 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Home.route) {
-                            HomeScreen(onNavigateToCashIn = {
-                                navController.navigate(Screen.CashInOptions.route)
-                            })
+                            HomeScreen(
+                                onNavigateToCashIn = {
+                                    navController.navigate(Screen.CashInOptions.route)
+                                },
+                                onNavigateToProduct = { productId ->
+                                    navController.navigate(Screen.Product.createRoute(productId))
+                                }
+                            )
+                        }
+
+                        composable(Screen.Shop.route) {
+                            ShopScreen(
+                                onNavigateToProduct = { productId ->
+                                    navController.navigate(Screen.Product.createRoute(productId))
+                                },
+                                onNavigateToSearch = {
+                                    navController.navigate(Screen.Search.route)
+                                },
+                                onNavigateToFilter = {
+                                    navController.navigate(Screen.Filter.route)
+                                }
+                            )
+                        }
+
+                        composable(Screen.Search.route) {
+                            SearchScreen(
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        composable(Screen.Filter.route) {
+                            FilterScreen(
+                                onNavigateBack = {
+                                    navController.popBackStack()
+                                },
+                                onApplyFilters = { filterState ->
+                                    // Aquí puedes procesar los filtros aplicados
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
+
+                        composable(
+                            route = Screen.Product.route,
+                            arguments = listOf(navArgument(Screen.Product.ARG_PRODUCT_ID) { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val productId = backStackEntry.arguments?.getString(Screen.Product.ARG_PRODUCT_ID) ?: "iphone"
+                            ProductScreen(
+                                productId = productId,
+                                onNavigateBack = { navController.popBackStack() },
+                                onContinue = {
+                                    navController.popBackStack()
+                                }
+                            )
                         }
 
                         composable(Screen.History.route) {
@@ -279,7 +335,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.OnlineCashIn.route) {
                             OnlineCashInScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                onBankSelected = { bank ->
+                                onBankSelected = { _ ->
                                     navController.navigate(Screen.CashInAmount.route)
                                 }
                             )
@@ -288,7 +344,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.OverTheCounter.route) {
                             OverTheCounterScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                onPartnerSelected = { partner ->
+                                onPartnerSelected = { _ ->
                                     navController.navigate(Screen.CashInAmount.route)
                                 }
                             )
@@ -297,7 +353,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.CashInAmount.route) {
                             CashInAmountScreen(
                                 onNavigateBack = { navController.popBackStack() },
-                                onNextClick = { amount ->
+                                onNextClick = { _ ->
                                     navController.navigate(Screen.TransactionSuccess.route)
                                 }
                             )
@@ -330,7 +386,7 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.ProfileDetails.route) {
-                            ProfileDetailScreen(
+                            ManageProfileDetailScreen(
                                 sessionManager = sessionManager,
                                 onBack = {
                                     navController.popBackStack()

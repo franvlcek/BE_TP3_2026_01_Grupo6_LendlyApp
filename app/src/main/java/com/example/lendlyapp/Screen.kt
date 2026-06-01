@@ -19,6 +19,13 @@ sealed class Screen(val route: String) {
     object Notifications : Screen("notifications")
     object Manage : Screen("manage")
     object CreditScore : Screen("credit_score")
+    object Shop : Screen("shop")
+    object Search : Screen("search")
+    object Filter : Screen("filter")
+    object Product : Screen("product/{productId}") {
+        const val ARG_PRODUCT_ID = "productId"
+        fun createRoute(productId: String) = "product/$productId"
+    }
 
     // Verificación
     object VerifyPhone : Screen("verify_phone")
