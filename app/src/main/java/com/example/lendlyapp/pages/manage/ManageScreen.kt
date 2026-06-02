@@ -58,7 +58,7 @@ fun ManageScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ){
-        TopBar()
+        TopBar(onProfileClick = onEditProfile)
         Spacer(modifier = Modifier.padding(top = 16.dp))
         Column(
             modifier = Modifier.fillMaxSize(),

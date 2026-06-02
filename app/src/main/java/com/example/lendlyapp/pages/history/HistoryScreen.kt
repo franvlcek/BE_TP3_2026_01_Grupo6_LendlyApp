@@ -31,7 +31,8 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    onNavigateToDetail: () -> Unit
+    onNavigateToDetail: () -> Unit,
+    onNavigateToProfile: () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val filters = listOf(
@@ -54,7 +55,7 @@ fun HistoryScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO Profile */ }) {
+                    IconButton(onClick = onNavigateToProfile) {
                         Icon(
                             imageVector = Icons.Default.Person, 
                             contentDescription = "Profile",

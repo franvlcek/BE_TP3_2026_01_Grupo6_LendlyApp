@@ -31,7 +31,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingContainer(
-    onFinish: ()-> Unit
+    onLogin: () -> Unit,
+    onRegister: () -> Unit
 ){
     val pages = listOf(
         OnboardingPage(
@@ -107,7 +108,7 @@ fun OnboardingContainer(
                     text = "Log In",
                     onClick = {
                         scope.launch {
-                            onFinish()
+                            onLogin()
                         }
                     },
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
@@ -119,7 +120,7 @@ fun OnboardingContainer(
                 onClick = {
                     scope.launch {
                         if (pagerState.currentPage == pages.lastIndex) {
-                            onFinish()
+                            onRegister()
                         } else {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }

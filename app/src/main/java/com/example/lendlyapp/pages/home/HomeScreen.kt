@@ -26,12 +26,13 @@ import com.example.lendlyapp.ui.theme.interFontsSemiBold
 @Composable
 fun HomeScreen(
     onNavigateToCashIn: () -> Unit,
-    onNavigateToProduct: (String) -> Unit = {}
+    onNavigateToProduct: (String) -> Unit = {},
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val navigateToProduct = onNavigateToProduct
     Scaffold(
         topBar = {
-            HomeTopBar()
+            HomeTopBar(onNavigateToProfile = onNavigateToProfile)
         }
     ) { innerPadding ->
         LazyColumn(
@@ -121,7 +122,9 @@ fun HomeScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeTopBar() {
+fun HomeTopBar(
+    onNavigateToProfile: () -> Unit = {}
+) {
     CenterAlignedTopAppBar(
         title = {
             Image(
@@ -131,7 +134,7 @@ fun HomeTopBar() {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = onNavigateToProfile) {
                 Icon(
                     imageVector = Icons.Default.Person, 
                     contentDescription = "Profile",
