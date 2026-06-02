@@ -1,6 +1,7 @@
 package com.example.lendlyapp.pages.login
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,8 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
     onNavigateToHome: () -> Unit,
+    onNavigateToRegister: () -> Unit = {},
+    onNavigateToForgotPassword: () -> Unit = {}
 ) {
     var passwordVisible by remember { mutableStateOf(value = false) }
 
@@ -166,6 +169,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(top = 12.dp)
+                    .clickable { onNavigateToForgotPassword() }
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -188,12 +192,18 @@ fun LoginScreen(
                     text = "Log In",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp)
-                        .padding(bottom = 16.dp)
-                ) {
-                    viewModel.onLoginClicked()
-                }
+                        .height(56.dp),
+                    onClick = { viewModel.onLoginClicked() }
+                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = onNavigateToRegister) {
+                Text("Don't have an account? Register", color = Color(0xFF4C662B))
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
