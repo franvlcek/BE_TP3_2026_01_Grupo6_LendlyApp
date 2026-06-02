@@ -22,6 +22,8 @@ sealed class Screen(val route: String) {
     object Shop : Screen("shop")
     object Search : Screen("search")
     object Filter : Screen("filter")
+    object Register : Screen("register")
+    object ForgotPassword : Screen("forgot_password")
     object Product : Screen("product/{productId}") {
         const val ARG_PRODUCT_ID = "productId"
         fun createRoute(productId: String) = "product/$productId"

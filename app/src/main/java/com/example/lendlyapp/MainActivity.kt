@@ -47,6 +47,8 @@ import com.example.lendlyapp.pages.shop.ShopScreen
 import com.example.lendlyapp.pages.shop.SearchScreen
 import com.example.lendlyapp.pages.shop.FilterScreen
 import com.example.lendlyapp.pages.shop.ProductScreen
+import com.example.lendlyapp.pages.login.RegisterScreen
+import com.example.lendlyapp.pages.login.ForgotPasswordScreen
 import com.example.lendlyapp.ui.theme.LendlyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -109,8 +111,13 @@ class MainActivity : ComponentActivity() {
 
                         composable(Screen.Onboarding.route) {
                             OnboardingContainer(
-                                onFinish = {
+                                onLogin = {
                                     navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                                    }
+                                },
+                                onRegister = {
+                                    navController.navigate(Screen.Register.route) {
                                         popUpTo(Screen.Onboarding.route) { inclusive = true }
                                     }
                                 }
@@ -124,7 +131,26 @@ class MainActivity : ComponentActivity() {
                                 onNavigateToHome = {
                                     // Después del login, vamos a verificar el teléfono
                                     navController.navigate(Screen.VerifyPhone.route)
+                                },
+                                onNavigateToRegister = {
+                                    navController.navigate(Screen.Register.route)
+                                },
+                                onNavigateToForgotPassword = {
+                                    navController.navigate(Screen.ForgotPassword.route)
                                 }
+                            )
+                        }
+
+                        composable(Screen.Register.route) {
+                            RegisterScreen(
+                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateToVerify = { navController.navigate(Screen.VerifyPhone.route) }
+                            )
+                        }
+
+                        composable(Screen.ForgotPassword.route) {
+                            ForgotPasswordScreen(
+                                onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
@@ -224,6 +250,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToProduct = { productId ->
                                     navController.navigate(Screen.Product.createRoute(productId))
+                                },
+                                onNavigateToProfile = {
+                                    navController.navigate(Screen.Manage.route)
                                 }
                             )
                         }
@@ -238,6 +267,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToFilter = {
                                     navController.navigate(Screen.Filter.route)
+                                },
+                                onNavigateToProfile = {
+                                    navController.navigate(Screen.Manage.route)
                                 }
                             )
                         }
@@ -277,9 +309,14 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.History.route) {
-                            HistoryScreen(onNavigateToDetail = {
-                                navController.navigate(Screen.TransactionDetail.route)
-                            })
+                            HistoryScreen(
+                                onNavigateToDetail = {
+                                    navController.navigate(Screen.TransactionDetail.route)
+                                },
+                                onNavigateToProfile = {
+                                    navController.navigate(Screen.Manage.route)
+                                }
+                            )
                         }
 
                         composable(Screen.Loan.route) {
