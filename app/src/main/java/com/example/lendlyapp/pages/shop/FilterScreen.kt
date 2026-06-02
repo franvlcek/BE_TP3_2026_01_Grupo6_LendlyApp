@@ -1,288 +1,187 @@
 package com.example.lendlyapp.pages.shop
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class FilterState(
-    val selectedBrand: Set<String> = emptySet(),
-    val selectedGender: Set<String> = emptySet(),
-    val selectedSort: String = "",
-    val selectedPriceRange: String = ""
-)
-
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FilterScreen(
     onNavigateBack: () -> Unit = {},
-    onApplyFilters: (FilterState) -> Unit = {}
+    onApplyFilters: (String) -> Unit = {}
 ) {
-    var filterState by remember {
-        mutableStateOf(
-            FilterState(
-                selectedBrand = setOf("All"),
-                selectedGender = setOf("All"),
-                selectedSort = "Most Recent",
-                selectedPriceRange = "All"
-            )
-        )
-    }
-
-    val brands = listOf("All", "Nike", "Adidas", "Puma", "Jordan")
-    val genders = listOf("All", "Men", "Women")
-    val sortOptions = listOf("Most Recent", "Popular", "Low Interest")
-    val priceOptions = listOf("All", "$500 - $1000", "$1000 - $5000")
+    var selectedBrand by remember { mutableStateOf("All") }
+    var selectedGender by remember { mutableStateOf("All") }
+    var selectedSort by remember { mutableStateOf("Most Recent") }
+    var selectedPriceRange by remember { mutableStateOf("All") }
 
     Scaffold(
         containerColor = Color.White,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text(
-                        text = "Filter",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
-                    )
+            TopAppBar(
+                title = { 
+                    Text("Filter", 
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    ) 
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Text(text = "←", fontSize = 20.sp, color = Color.Black)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White,
-                    navigationIconContentColor = Color.Black,
-                    titleContentColor = Color.Black
-                ),
-                modifier = Modifier.height(56.dp)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
+        },
+        bottomBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        selectedBrand = "All"
+                        selectedGender = "All"
+                        selectedSort = "Most Recent"
+                        selectedPriceRange = "All"
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(100.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray)
+                ) {
+                    Text("Reset Filter", color = Color.Gray, fontWeight = FontWeight.Bold)
+                }
+                Button(
+                    onClick = { onApplyFilters("applied") },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF7BF179),
+                        contentColor = Color(0xFF102000)
+                    ),
+                    shape = RoundedCornerShape(100.dp)
+                ) {
+                    Text("Apply", fontWeight = FontWeight.Bold)
+                }
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 8.dp, vertical = 12.dp)
-            ) {
-                // Brand Filter
-                FilterSectionSimple(title = "Brands") {
-                    SimpleChipsRow(
-                        items = brands,
-                        selected = filterState.selectedBrand,
-                        onSelectionChange = { selection ->
-                            filterState = filterState.copy(selectedBrand = selection)
-                        }
-                    )
-                }
+            FilterSection(
+                title = "Brands",
+                options = listOf("All", "Nike", "Adidas", "Puma", "Jordan"),
+                selectedOption = selectedBrand,
+                onOptionSelected = { selectedBrand = it }
+            )
 
-                // Gender Filter
-                FilterSectionSimple(title = "Gender") {
-                    SimpleChipsRow(
-                        items = genders,
-                        selected = filterState.selectedGender,
-                        onSelectionChange = { selection ->
-                            filterState = filterState.copy(selectedGender = selection)
-                        }
-                    )
-                }
+            Spacer(modifier = Modifier.height(24.dp))
 
-                // Sort By Filter
-                FilterSectionSimple(title = "Sort by") {
-                    val sortSelection = if (filterState.selectedSort.isEmpty()) emptySet() else setOf(filterState.selectedSort)
-                    SimpleChipsRow(
-                        items = sortOptions,
-                        selected = sortSelection,
-                        onSelectionChange = { selection ->
-                            filterState = filterState.copy(selectedSort = selection.firstOrNull() ?: "")
-                        },
-                        isSingleSelection = true
-                    )
-                }
+            FilterSection(
+                title = "Gender",
+                options = listOf("All", "Men", "Women"),
+                selectedOption = selectedGender,
+                onOptionSelected = { selectedGender = it }
+            )
 
-                FilterSectionSimple(title = "Price Range") {
-                    val priceSelection = if (filterState.selectedPriceRange.isEmpty()) emptySet() else setOf(filterState.selectedPriceRange)
-                    SimpleChipsRow(
-                        items = priceOptions,
-                        selected = priceSelection,
-                        onSelectionChange = { selection ->
-                            filterState = filterState.copy(selectedPriceRange = selection.firstOrNull() ?: "")
-                        },
-                        isSingleSelection = true
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        filterState = FilterState()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = Color.White,
-                        contentColor = Color(0xFF9A9A9A)
-                    ),
-                    border = BorderStroke(1.dp, Color(0xFFD0D0D0)),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Text(
-                        text = "Reset Filter",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 12.sp
-                    )
-                }
+            FilterSection(
+                title = "Sort by",
+                options = listOf("Most Recent", "Popular", "Low Interest"),
+                selectedOption = selectedSort,
+                onOptionSelected = { selectedSort = it }
+            )
 
-                Button(
-                    onClick = {
-                        onApplyFilters(filterState)
-                        onNavigateBack()
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF7BF179)
-                    ),
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Text(
-                        text = "Apply",
-                        color = Color(0xFF102000),
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 12.sp
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(24.dp))
+
+            FilterSection(
+                title = "Price Range",
+                options = listOf("All", "$500 - $1000", "$1000 - $5000"),
+                selectedOption = selectedPriceRange,
+                onOptionSelected = { selectedPriceRange = it }
+            )
         }
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun FilterSectionSimple(
+fun FilterSection(
     title: String,
-    content: @Composable () -> Unit
+    options: List<String>,
+    selectedOption: String,
+    onOptionSelected: (String) -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp)
-    ) {
+    Column {
         Text(
             text = title,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            modifier = Modifier.padding(bottom = 10.dp),
-            color = Color.Black
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Gray,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        content()
-    }
-}
-
-@Composable
-fun SimpleChipsRow(
-    modifier: Modifier = Modifier,
-    items: List<String>,
-    selected: Set<String>,
-    onSelectionChange: (Set<String>) -> Unit,
-    isSingleSelection: Boolean = false
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Row(
+        FlowRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            items.forEach { item ->
-                val isSelected = item in selected
-                FilterChipSimple(
-                    text = item,
-                    isSelected = isSelected,
-                    onClick = {
-                        val newSelection = if (isSingleSelection) {
-                            if (isSelected) emptySet() else setOf(item)
-                        } else {
-                            if (isSelected) selected - item else selected + item
-                        }
-                        onSelectionChange(newSelection)
-                    },
-                    modifier = Modifier.weight(1f)
-                )
+            options.forEach { option ->
+                val isSelected = option == selectedOption
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (isSelected) Color(0xFF7BF179) else Color.White)
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) Color.Transparent else Color.LightGray,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .clickable { onOptionSelected(option) }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = option,
+                        color = if (isSelected) Color(0xFF102000) else Color.Gray,
+                        fontSize = 14.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
             }
         }
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun FilterChipSimple(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .height(32.dp)
-            .background(
-                color = if (isSelected) Color(0xFF7BF179) else Color.White,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .border(1.dp, Color(0xFFC7C7C7), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = text,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (isSelected) Color(0xFF102000) else Color(0xFF7A7A7A)
-        )
-    }
+fun FilterScreenPreview() {
+    FilterScreen()
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
