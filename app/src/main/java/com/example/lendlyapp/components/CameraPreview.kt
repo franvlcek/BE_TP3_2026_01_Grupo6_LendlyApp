@@ -15,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner // 🌟 IMPORTACIÓN MODERNA CORREGIDA (Saca el Warning)
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 
@@ -24,8 +24,6 @@ fun CameraPreview(
     modifier: Modifier = Modifier,
     cameraSelector: CameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 ) {
-    // Si estamos en modo Preview de Android Studio, mostramos un placeholder
-    // ya que la cámara real no puede renderizarse en el editor.
     if (LocalInspectionMode.current) {
         Box(
             modifier = modifier.background(Color.DarkGray),
@@ -59,7 +57,7 @@ fun CameraPreview(
 
                 try {
                     cameraProvider.unbindAll()
-                    
+
                     // Verificamos si la cámara seleccionada existe, si no usamos la de atrás
                     val selector = if (cameraProvider.hasCamera(cameraSelector)) {
                         cameraSelector

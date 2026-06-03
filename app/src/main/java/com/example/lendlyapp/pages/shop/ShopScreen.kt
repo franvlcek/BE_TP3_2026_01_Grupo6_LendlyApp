@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,12 +43,11 @@ data class PromoData(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShopScreen(
+    viewModel: ShopViewModel,
     onNavigateToProduct: (String) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToFilter: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {},
-    recommendedProducts: List<Product> = emptyList(),
-    bestSellers: List<Product> = emptyList()
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     val promoItems = listOf(
@@ -167,18 +167,19 @@ fun ShopScreen(
                         .clip(RoundedCornerShape(24.dp))
                         .background(data.bgColor)
                 ) {
-                    // Bloque verde de fondo — Estilo cuadrado con sombra interna/borde como en la foto
-                    // Bloque verde inferior derecho
+                    // Bloque verde inferior derecho (Cuadrado con sombra)
                     if (data.showGreenBlock) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .width(160.dp)
                                 .height(115.dp)
-                                .background(
-                                    color = Color(0xFF7BF179),
-                                    shape = RoundedCornerShape(topStart = 32.dp)
+                                .shadow(
+                                    elevation = 8.dp,
+                                    shape = RectangleShape,
+                                    clip = false
                                 )
+                                .background(color = Color(0xFF7BF179))
                         )
                     }
 
@@ -304,13 +305,13 @@ fun ShopScreen(
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (recommendedProducts.isEmpty()) {
+                if (viewModel.recommendedProducts.isEmpty()) {
                     item { ProductItem("iPhone 12 Pro...", "₱1,200 × 24 mo", R.drawable.img_iphone) { onNavigateToProduct("iphone") } }
                     item { ProductItem("Headphones", "₱1,200 × 24 mo", R.drawable.img_headphones) { onNavigateToProduct("headphones") } }
                     item { ProductItem("Sneakers", "₱1,200 × 24 mo", R.drawable.img_sneakers) { onNavigateToProduct("sneakers") } }
                 } else {
-                    items(recommendedProducts.size) { index ->
-                        val product = recommendedProducts[index]
+                    items(viewModel.recommendedProducts.size) { index ->
+                        val product = viewModel.recommendedProducts[index]
                         ProductItem(product.name, product.price, product.imageResId) { onNavigateToProduct(product.id) }
                     }
                 }
@@ -322,13 +323,13 @@ fun ShopScreen(
                 contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (bestSellers.isEmpty()) {
+                if (viewModel.bestSellers.isEmpty()) {
                     item { ProductItem("Surface Laptop", "₱1,200 × 24 mo", R.drawable.img_iphone) { onNavigateToProduct("surface_laptop") } }
                     item { ProductItem("iPhone 12 Pro...", "₱1,200 × 24 mo", R.drawable.img_iphone) { onNavigateToProduct("iphone") } }
                     item { ProductItem("PS4 Play Stat...", "₱1,200 × 24 mo", R.drawable.img_headphones) { onNavigateToProduct("ps4") } }
                 } else {
-                    items(bestSellers.size) { index ->
-                        val product = bestSellers[index]
+                    items(viewModel.bestSellers.size) { index ->
+                        val product = viewModel.bestSellers[index]
                         ProductItem(product.name, product.price, product.imageResId) { onNavigateToProduct(product.id) }
                     }
                 }
@@ -455,8 +456,3 @@ fun ProductItem(name: String, price: String, imageRes: Int, onClick: () -> Unit 
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ShopScreenPreview() {
-    ShopScreen()
-}

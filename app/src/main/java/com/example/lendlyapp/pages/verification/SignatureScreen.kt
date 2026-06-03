@@ -29,12 +29,10 @@ import com.example.lendlyapp.components.PrimaryButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignatureScreen(
+    viewModel: SignatureViewModel,
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit,
 ) {
-    // Guardamos una lista de puntos históricos. Usamos Offset.Unspecified para saber cuándo levantó el dedo
-    val points = remember { mutableStateListOf<Offset>() }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -84,26 +82,26 @@ fun SignatureScreen(
                     .pointerInput(Unit) {
                         detectDragGestures(
                             onDragStart = { startOffset ->
-                                points.add(startOffset)
+                                viewModel.onDragStart(startOffset)
                             },
                             onDrag = { change, _ ->
                                 change.consume()
-                                points.add(change.position) // Registramos cada punto del camino
+                                viewModel.onDrag(change.position)
                             },
                             onDragEnd = {
-                                points.add(Offset.Unspecified) // Separador para saber que levantó el dedo
+                                viewModel.onDragEnd()
                             }
                         )
                     },
                 contentAlignment = Alignment.Center
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    if (points.isNotEmpty()) {
+                    if (viewModel.points.isNotEmpty()) {
                         val signaturePath = Path().apply {
                             var isFirst = true
-                            points.forEach { point ->
+                            viewModel.points.forEach { point ->
                                 if (point == Offset.Unspecified) {
-                                    isFirst = true // El siguiente punto iniciará un trazo nuevo libre
+                                    isFirst = true
                                 } else {
                                     if (isFirst) {
                                         moveTo(point.x, point.y)
@@ -123,7 +121,7 @@ fun SignatureScreen(
                     }
                 }
 
-                if (points.isEmpty()) {
+                if (viewModel.points.isEmpty()) {
                     Text(
                         text = "Sign here\n(same signature as with the\ndocument you provided)",
                         color = Color.LightGray,
@@ -143,11 +141,9 @@ fun SignatureScreen(
             }
 
             // Botón para limpiar el lienzo
-            if (points.isNotEmpty()) {
+            if (viewModel.points.isNotEmpty()) {
                 TextButton(
-                    onClick = {
-                        points.clear() // Vaciamos los trazos viejos y el motor queda listo de nuevo
-                    },
+                    onClick = viewModel::clearSignature,
                     modifier = Modifier.align(Alignment.End).padding(top = 8.dp)
                 ) {
                     Text("Clear Signature", color = Color.Red)
@@ -176,10 +172,4 @@ fun SignatureScreen(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SignatureScreenPreview() {
-    SignatureScreen(onNavigateBack = {}, onNavigateNext = {})
 }

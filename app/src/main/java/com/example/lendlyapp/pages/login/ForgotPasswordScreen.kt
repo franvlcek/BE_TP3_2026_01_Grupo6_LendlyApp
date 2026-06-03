@@ -23,11 +23,9 @@ import com.example.lendlyapp.components.PrimaryButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
+    viewModel: ForgotPasswordViewModel,
     onNavigateBack: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var emailSent by remember { mutableStateOf(false) }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -57,7 +55,7 @@ fun ForgotPasswordScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            if (!emailSent) {
+            if (!viewModel.emailSent) {
                 Text(
                     text = "Enter your email address to reset your password.",
                     color = Color.Gray,
@@ -67,8 +65,8 @@ fun ForgotPasswordScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
+                    value = viewModel.email,
+                    onValueChange = viewModel::onEmailChanged,
                     label = { Text("Email Address") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -83,7 +81,7 @@ fun ForgotPasswordScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = { emailSent = true }
+                    onClick = viewModel::sendResetLink
                 )
             } else {
                 Text(
@@ -93,7 +91,7 @@ fun ForgotPasswordScreen(
                     color = Color(0xFF4C662B)
                 )
                 Text(
-                    text = "We've sent a password reset link to $email",
+                    text = "We've sent a password reset link to ${viewModel.email}",
                     color = Color.Gray,
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp)
@@ -111,10 +109,4 @@ fun ForgotPasswordScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ForgotPasswordScreenPreview() {
-    ForgotPasswordScreen()
 }

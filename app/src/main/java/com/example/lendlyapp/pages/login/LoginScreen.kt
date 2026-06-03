@@ -34,6 +34,7 @@ fun LoginScreen(
     onNavigateToForgotPassword: () -> Unit = {}
 ) {
     var passwordVisible by remember { mutableStateOf(value = false) }
+    var passwordLocalError by remember { mutableStateOf<String?>(null) }
 
     // Inicializamos el email por defecto ya que en este diseño el usuario ya está "seleccionado" (John Doe)
     LaunchedEffect(Unit) {
@@ -139,7 +140,10 @@ fun LoginScreen(
             // Campo de Contraseña
             OutlinedTextField(
                 value = viewModel.password,
-                onValueChange = { viewModel.onPasswordChanged(it) },
+                onValueChange = { 
+                    viewModel.onPasswordChanged(it)
+                    passwordLocalError = null
+                },
                 placeholder = { Text("123123123") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
@@ -156,7 +160,13 @@ fun LoginScreen(
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
                     focusedBorderColor = Color(0xFF4C662B)
-                )
+                ),
+                isError = passwordLocalError != null,
+                supportingText = {
+                    if (passwordLocalError != null) {
+                        Text(text = passwordLocalError!!, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             )
 
             // Olvidaste tu contraseña?
@@ -174,7 +184,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Cartel de Error
+            // Cartel de Error (ViewModel)
             viewModel.errorMessage?.let { error ->
                 Text(
                     text = error,
@@ -193,7 +203,13 @@ fun LoginScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
-                    onClick = { viewModel.onLoginClicked() }
+                    onClick = { 
+                        if (viewModel.password.isBlank()) {
+                            passwordLocalError = "Password is required"
+                        } else {
+                            viewModel.onLoginClicked()
+                        }
+                    }
                 )
             }
 

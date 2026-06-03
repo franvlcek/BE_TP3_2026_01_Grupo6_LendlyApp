@@ -22,17 +22,9 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
+    viewModel: SearchViewModel,
     onNavigateBack: () -> Unit = {}
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    val recentSearches = remember {
-        mutableStateListOf(
-            "Blue shirt", "Red shirt", "Yellow shirt", "Blue Shoes",
-            "Yellow Shoes", "Red Shoes", "Yellow Shoes", "Red Shoes",
-            "Blue Shoes", "Yellow shirt"
-        )
-    }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -62,8 +54,8 @@ fun SearchScreen(
         ) {
             // Search TextField
             OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { searchQuery = it },
+                value = viewModel.searchQuery,
+                onValueChange = viewModel::onSearchQueryChanged,
                 placeholder = { Text("Search for product", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 modifier = Modifier
@@ -88,7 +80,7 @@ fun SearchScreen(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
-                TextButton(onClick = { recentSearches.clear() }) {
+                TextButton(onClick = viewModel::clearAllRecent) {
                     Text(
                         text = "Clear All",
                         color = Color(0xFF4C662B),
@@ -103,12 +95,12 @@ fun SearchScreen(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(recentSearches) { search ->
+                items(viewModel.recentSearches) { search ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
-                            .clickable { searchQuery = search },
+                            .clickable { viewModel.onRecentSearchClicked(search) },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -118,7 +110,7 @@ fun SearchScreen(
                             fontSize = 14.sp
                         )
                         IconButton(
-                            onClick = { recentSearches.remove(search) },
+                            onClick = { viewModel.removeRecentSearch(search) },
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(
@@ -133,10 +125,4 @@ fun SearchScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SearchScreenPreview() {
-    SearchScreen()
 }

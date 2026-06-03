@@ -9,6 +9,8 @@ import com.example.lendlyapp.data.model.LoginRequest
 import com.example.lendlyapp.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 // Anotación clave para que Hilt sepa cómo construir este ViewModel
@@ -50,8 +52,13 @@ class LoginViewModel @Inject constructor(
      * para que la app no se congele mientras espera la respuesta de internet.
      */
     fun onLoginClicked() {
+        val emailPattern = android.util.Patterns.EMAIL_ADDRESS
+        
         if (email.isBlank() || password.isBlank()) {
             errorMessage = "Por favor, completa todos los campos."
+            return
+        } else if (!emailPattern.matcher(email).matches()) {
+            errorMessage = "El formato del correo electrónico es inválido."
             return
         }
 
@@ -66,8 +73,20 @@ class LoginViewModel @Inject constructor(
                 loginSuccess = true
             }
             result.onFailure { exception ->
-                // Acá podés personalizar el mensaje según lo que devuelva tu API
-                errorMessage = exception.localizedMessage ?: "Error al iniciar sesión. Inténtalo de nuevo."
+
+                errorMessage = when (exception) {
+                    is IOException -> "Error de conexión. Revisa tu internet."
+                    is HttpException -> {
+                        when (exception.code()) {
+                            401 -> "Correo o contraseña incorrectos."
+                            403 -> "Acceso prohibido. Contacta a soporte."
+                            404 -> "El servidor de login no fue encontrado."
+                            500 -> "Error en el servidor. Inténtalo más tarde."
+                            else -> "Problema en el servidor (${exception.code()})"
+                        }
+                    }
+                    else -> exception.localizedMessage ?: "Ocurrió un error inesperado."
+                }
             }
 
             isLoading = false

@@ -4,29 +4,25 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack // 🌟 IMPORTACIÓN MODERNIZADA
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.lendlyapp.components.PrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerifyPhoneScreen(
+    viewModel: VerifyPhoneViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToSms: () -> Unit
 ) {
-    var phoneNumber by remember { mutableStateOf("") }
-    var countryCode by remember { mutableStateOf("+65") }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -34,7 +30,7 @@ fun VerifyPhoneScreen(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -79,19 +75,21 @@ fun VerifyPhoneScreen(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 OutlinedTextField(
-                    value = countryCode,
-                    onValueChange = { countryCode = it },
-                    modifier = Modifier.width(80.dp),
+                    value = viewModel.countryCode,
+                    onValueChange = viewModel::onCountryCodeChanged,
+                    modifier = Modifier.width(90.dp),
                     shape = RoundedCornerShape(12.dp),
                     singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.LightGray
-                    )
+                    ),
+                    isError = viewModel.phoneError != null
                 )
 
                 OutlinedTextField(
-                    value = phoneNumber,
-                    onValueChange = { phoneNumber = it },
+                    value = viewModel.phoneNumber,
+                    onValueChange = viewModel::onPhoneNumberChanged,
                     placeholder = { Text("991251255", color = Color.LightGray) },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp),
@@ -99,7 +97,13 @@ fun VerifyPhoneScreen(
                     singleLine = true,
                     colors = OutlinedTextFieldDefaults.colors(
                         unfocusedBorderColor = Color.LightGray
-                    )
+                    ),
+                    isError = viewModel.phoneError != null,
+                    supportingText = {
+                        viewModel.phoneError?.let {
+                            Text(text = it, color = MaterialTheme.colorScheme.error)
+                        }
+                    }
                 )
             }
 
@@ -111,14 +115,10 @@ fun VerifyPhoneScreen(
                     .fillMaxWidth()
                     .height(56.dp)
                     .padding(bottom = 16.dp),
-                onClick = onNavigateToSms
+                onClick = {
+                    viewModel.validate(onSuccess = onNavigateToSms)
+                }
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun VerifyPhoneScreenPreview() {
-    VerifyPhoneScreen(onNavigateBack = {}, onNavigateToSms = {})
 }

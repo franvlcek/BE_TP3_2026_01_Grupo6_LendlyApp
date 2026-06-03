@@ -24,12 +24,10 @@ import com.example.lendlyapp.components.PrimaryButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreatePasswordScreen(
+    viewModel: CreatePasswordViewModel,
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit
 ) {
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -72,29 +70,30 @@ fun CreatePasswordScreen(
             )
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password,
+                onValueChange = viewModel::onPasswordChanged,
                 placeholder = { Text("********") },
                 modifier = Modifier.fillMaxWidth(),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (viewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    val image = if (viewModel.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton(onClick = viewModel::togglePasswordVisibility) {
                         Icon(imageVector = image, contentDescription = null)
                     }
                 },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
+                isError = viewModel.passwordError != null,
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray
                 )
             )
 
             Text(
-                text = "At least 9 characters, containing a letter and a number",
+                text = viewModel.passwordError ?: "At least 9 characters, containing a letter and a number",
                 fontSize = 12.sp,
-                color = Color.Gray,
+                color = if (viewModel.passwordError != null) MaterialTheme.colorScheme.error else Color.Gray,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
@@ -106,15 +105,10 @@ fun CreatePasswordScreen(
                     .fillMaxWidth()
                     .height(56.dp)
                     .padding(bottom = 16.dp),
-                onClick = onNavigateNext
+                onClick = {
+                    viewModel.validate(onSuccess = onNavigateNext)
+                }
             )
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun CreatePasswordScreenPreview() {
-    CreatePasswordScreen(onNavigateBack = {}, onNavigateNext = {})
-}
-

@@ -11,7 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,14 +29,10 @@ import com.example.lendlyapp.components.PrimaryButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
+    viewModel: RegisterViewModel,
     onNavigateBack: () -> Unit = {},
     onNavigateToVerify: () -> Unit = {}
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -68,45 +64,63 @@ fun RegisterScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = viewModel.email,
+                onValueChange = viewModel::onEmailChanged,
                 label = { Text("Email Address") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true
+                singleLine = true,
+                isError = viewModel.emailError != null,
+                supportingText = {
+                    viewModel.emailError?.let { 
+                        Text(text = it, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
+                value = viewModel.password,
+                onValueChange = viewModel::onPasswordChanged,
                 label = { Text("Password") },
                 modifier = Modifier.fillMaxWidth(),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (viewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
-                    val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    val image = if (viewModel.passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                    IconButton(onClick = viewModel::togglePasswordVisibility) {
                         Icon(imageVector = image, contentDescription = null)
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
+                singleLine = true,
+                isError = viewModel.passwordError != null,
+                supportingText = {
+                    viewModel.passwordError?.let {
+                        Text(text = it, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                value = viewModel.confirmPassword,
+                onValueChange = viewModel::onConfirmPasswordChanged,
                 label = { Text("Confirm Password") },
                 modifier = Modifier.fillMaxWidth(),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = if (viewModel.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 shape = RoundedCornerShape(12.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true
+                singleLine = true,
+                isError = viewModel.confirmPasswordError != null,
+                supportingText = {
+                    viewModel.confirmPasswordError?.let {
+                        Text(text = it, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -116,7 +130,9 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                onClick = onNavigateToVerify
+                onClick = {
+                    viewModel.validate(onSuccess = onNavigateToVerify)
+                }
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -126,10 +142,4 @@ fun RegisterScreen(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RegisterScreenPreview() {
-    RegisterScreen()
 }

@@ -142,21 +142,31 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Register.route) {
+                            val registerViewModel: com.example.lendlyapp.pages.login.RegisterViewModel = hiltViewModel()
                             RegisterScreen(
-                                onNavigateBack = { navController.popBackStack() },
+                                viewModel = registerViewModel,
+                                onNavigateBack = { 
+                                    navController.navigate(Screen.Login.route) {
+                                        popUpTo(Screen.Register.route) { inclusive = true }
+                                    }
+                                },
                                 onNavigateToVerify = { navController.navigate(Screen.VerifyPhone.route) }
                             )
                         }
 
                         composable(Screen.ForgotPassword.route) {
+                            val forgotPasswordViewModel: com.example.lendlyapp.pages.login.ForgotPasswordViewModel = hiltViewModel()
                             ForgotPasswordScreen(
+                                viewModel = forgotPasswordViewModel,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }
 
                         // 3. Verificación de Teléfono
                         composable(Screen.VerifyPhone.route) {
+                            val verifyPhoneViewModel: com.example.lendlyapp.pages.verification.VerifyPhoneViewModel = hiltViewModel()
                             VerifyPhoneScreen(
+                                viewModel = verifyPhoneViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateToSms = { navController.navigate(Screen.SmsVerification.route) }
                             )
@@ -164,7 +174,9 @@ class MainActivity : ComponentActivity() {
 
                         // 4. Verificación por SMS
                         composable(Screen.SmsVerification.route) {
+                            val smsVerificationViewModel: com.example.lendlyapp.pages.verification.SmsVerificationViewModel = hiltViewModel()
                             SmsVerificationScreen(
+                                viewModel = smsVerificationViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateNext = {
                                     navController.navigate(Screen.FaceRecognition.route)
@@ -204,7 +216,9 @@ class MainActivity : ComponentActivity() {
 
                         // 8. Profile Detail
                         composable(Screen.ProfileDetail.route) {
+                            val profileDetailViewModel: com.example.lendlyapp.pages.verification.ProfileDetailViewModel = hiltViewModel()
                             ProfileDetailScreen(
+                                viewModel = profileDetailViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateNext = {
                                     navController.navigate(Screen.Signature.route)
@@ -214,7 +228,9 @@ class MainActivity : ComponentActivity() {
 
                         // 9. Signature
                         composable(Screen.Signature.route) {
+                            val signatureViewModel: com.example.lendlyapp.pages.verification.SignatureViewModel = hiltViewModel()
                             SignatureScreen(
+                                viewModel = signatureViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateNext = {
                                     navController.navigate(Screen.CreatePassword.route)
@@ -224,7 +240,9 @@ class MainActivity : ComponentActivity() {
 
                         // 10. Create Password
                         composable(Screen.CreatePassword.route) {
+                            val createPasswordViewModel: com.example.lendlyapp.pages.verification.CreatePasswordViewModel = hiltViewModel()
                             CreatePasswordScreen(
+                                viewModel = createPasswordViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateNext = {
                                     navController.navigate(Screen.RegistrationDone.route)
@@ -258,7 +276,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Shop.route) {
+                            val shopViewModel: com.example.lendlyapp.pages.shop.ShopViewModel = hiltViewModel()
                             ShopScreen(
+                                viewModel = shopViewModel,
                                 onNavigateToProduct = { productId ->
                                     navController.navigate(Screen.Product.createRoute(productId))
                                 },
@@ -275,7 +295,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Search.route) {
+                            val searchViewModel: com.example.lendlyapp.pages.shop.SearchViewModel = hiltViewModel()
                             SearchScreen(
+                                viewModel = searchViewModel,
                                 onNavigateBack = {
                                     navController.popBackStack()
                                 }
@@ -283,7 +305,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Filter.route) {
+                            val filterViewModel: com.example.lendlyapp.pages.shop.FilterViewModel = hiltViewModel()
                             FilterScreen(
+                                viewModel = filterViewModel,
                                 onNavigateBack = {
                                     navController.popBackStack()
                                 },

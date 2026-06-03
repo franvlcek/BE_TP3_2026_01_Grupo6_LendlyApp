@@ -1,17 +1,19 @@
 package com.example.lendlyapp.pages.verification
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -24,10 +26,12 @@ import com.example.lendlyapp.components.PrimaryButton
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SmsVerificationScreen(
+    viewModel: SmsVerificationViewModel,
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit
 ) {
-    var code by remember { mutableStateOf(listOf("", "", "", "", "", "")) }
+    val focusRequesters = remember { List(6) { FocusRequester() } }
+    val focusManager = LocalFocusManager.current
 
     Scaffold(
         containerColor = Color.White,
@@ -36,7 +40,7 @@ fun SmsVerificationScreen(
                 title = {},
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 actions = {
@@ -79,22 +83,51 @@ fun SmsVerificationScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Placeholder for 6 boxes
                 repeat(6) { index ->
-                    Box(
+                    OutlinedTextField(
+                        value = viewModel.code[index],
+                        onValueChange = { input ->
+                            viewModel.onCodeChanged(
+                                index = index,
+                                newValue = input,
+                                onNextFocus = {
+                                    if (index < 5) focusRequesters[index + 1].requestFocus()
+                                },
+                                onClearFocus = {
+                                    focusManager.clearFocus()
+                                }
+                            )
+                            if (input.isEmpty() && index > 0) {
+                                focusRequesters[index - 1].requestFocus()
+                            }
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .aspectRatio(1f)
-                            .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = if (index < 2) "25"[index].toString() else "4",
+                            .focusRequester(focusRequesters[index]),
+                        shape = RoundedCornerShape(8.dp),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        textStyle = LocalTextStyle.current.copy(
+                            textAlign = TextAlign.Center,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Medium
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            unfocusedBorderColor = if (viewModel.showError) Color.Red else Color.LightGray,
+                            focusedBorderColor = Color(0xFF7BF179)
                         )
-                    }
+                    )
                 }
+            }
+
+            if (viewModel.showError) {
+                Text(
+                    text = "Please enter the full 6-digit code",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             TextButton(
@@ -117,14 +150,10 @@ fun SmsVerificationScreen(
                     .fillMaxWidth()
                     .height(56.dp)
                     .padding(bottom = 16.dp),
-                onClick = onNavigateNext
+                onClick = {
+                    viewModel.validate(onSuccess = onNavigateNext)
+                }
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SmsVerificationScreenPreview() {
-    SmsVerificationScreen(onNavigateBack = {}, onNavigateNext = {})
 }

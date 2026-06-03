@@ -19,18 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.lendlyapp.components.PrimaryButton
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FilterScreen(
+    viewModel: FilterViewModel,
     onNavigateBack: () -> Unit = {},
     onApplyFilters: (String) -> Unit = {}
 ) {
-    var selectedBrand by remember { mutableStateOf("All") }
-    var selectedGender by remember { mutableStateOf("All") }
-    var selectedSort by remember { mutableStateOf("Most Recent") }
-    var selectedPriceRange by remember { mutableStateOf("All") }
-
     Scaffold(
         containerColor = Color.White,
         topBar = {
@@ -59,12 +56,7 @@ fun FilterScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedButton(
-                    onClick = {
-                        selectedBrand = "All"
-                        selectedGender = "All"
-                        selectedSort = "Most Recent"
-                        selectedPriceRange = "All"
-                    },
+                    onClick = viewModel::resetFilters,
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp),
@@ -99,8 +91,8 @@ fun FilterScreen(
             FilterSection(
                 title = "Brands",
                 options = listOf("All", "Nike", "Adidas", "Puma", "Jordan"),
-                selectedOption = selectedBrand,
-                onOptionSelected = { selectedBrand = it }
+                selectedOption = viewModel.selectedBrand,
+                onOptionSelected = viewModel::onBrandSelected
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -108,8 +100,8 @@ fun FilterScreen(
             FilterSection(
                 title = "Gender",
                 options = listOf("All", "Men", "Women"),
-                selectedOption = selectedGender,
-                onOptionSelected = { selectedGender = it }
+                selectedOption = viewModel.selectedGender,
+                onOptionSelected = viewModel::onGenderSelected
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -117,8 +109,8 @@ fun FilterScreen(
             FilterSection(
                 title = "Sort by",
                 options = listOf("Most Recent", "Popular", "Low Interest"),
-                selectedOption = selectedSort,
-                onOptionSelected = { selectedSort = it }
+                selectedOption = viewModel.selectedSort,
+                onOptionSelected = viewModel::onSortSelected
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -126,8 +118,8 @@ fun FilterScreen(
             FilterSection(
                 title = "Price Range",
                 options = listOf("All", "$500 - $1000", "$1000 - $5000"),
-                selectedOption = selectedPriceRange,
-                onOptionSelected = { selectedPriceRange = it }
+                selectedOption = viewModel.selectedPriceRange,
+                onOptionSelected = viewModel::onPriceRangeSelected
             )
         }
     }
@@ -178,10 +170,4 @@ fun FilterSection(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FilterScreenPreview() {
-    FilterScreen()
 }
