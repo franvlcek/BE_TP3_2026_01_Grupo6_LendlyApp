@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,10 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -157,7 +159,7 @@ fun ShopScreen(
                 Box(
                     modifier = Modifier
                         .width(361.dp)
-                        .height(220.dp)
+                        .height(250.dp)
                         .shadow(
                             elevation = 12.dp,
                             shape = RoundedCornerShape(24.dp),
@@ -167,33 +169,31 @@ fun ShopScreen(
                         .clip(RoundedCornerShape(24.dp))
                         .background(data.bgColor)
                 ) {
-                    // Bloque verde inferior derecho (Cuadrado con sombra)
+                    // Bloque verde de fondo — Estilo cuadrado redondeado (como estaba antes)
                     if (data.showGreenBlock) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
                                 .width(160.dp)
                                 .height(115.dp)
-                                .shadow(
-                                    elevation = 8.dp,
-                                    shape = RectangleShape,
-                                    clip = false
+                                .background(
+                                    color = Color(0xFF7BF179),
+                                    shape = RoundedCornerShape(topStart = 32.dp)
                                 )
-                                .background(color = Color(0xFF7BF179))
                         )
                     }
 
-// Zapatilla
+                    // Imagen del producto (Invertida para el primer slide)
                     Image(
                         painter = painterResource(id = data.imageRes),
                         contentDescription = null,
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .offset(
-                                x = (-5).dp,
-                                y = 10.dp
-                            )
-                            .size(220.dp),
+                            .offset(x = (if (page == 0) -40 else -10).dp, y = 30.dp)
+                            .size(220.dp)
+                            .graphicsLayer {
+                                scaleX = if (page == 0) -1f else 1f
+                            },
                         contentScale = ContentScale.Fit
                     )
 
@@ -201,7 +201,7 @@ fun ShopScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .fillMaxWidth(0.58f)
+                            .fillMaxWidth(0.7f) // Aumentado el ancho para que el texto no se corte
                             .padding(start = 24.dp, top = 24.dp, bottom = 20.dp, end = 8.dp),
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -209,15 +209,16 @@ fun ShopScreen(
                             Text(
                                 text = data.title,
                                 color = Color.White,
-                                fontSize = 24.sp,
+                                fontSize = if (page == 0) 22.sp else 26.sp,
                                 fontWeight = FontWeight.Bold,
-                                lineHeight = 32.sp
+                                lineHeight = if (page == 0) 28.sp else 32.sp,
+                                maxLines = if (page == 0) 1 else 2
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = data.subtitle,
                                 color = Color(0xFFCCCCCC),
-                                fontSize = 13.sp,
+                                fontSize = 14.sp,
                                 lineHeight = 18.sp
                             )
                         }
@@ -246,28 +247,13 @@ fun ShopScreen(
                                 repeat(promoItems.size) { index ->
                                     Box(
                                         modifier = Modifier
-
                                             .size(8.dp)
-
                                             .background(
-
                                                 color = if (pagerState.currentPage == index)
-
                                                     Color.White
-
                                                 else
-
                                                     Color.Gray.copy(alpha = 0.5f),
-
                                                 shape = CircleShape
-
-                                            )
-                                            .background(
-                                                color = if (pagerState.currentPage == index)
-                                                    Color.White
-                                                else
-                                                    Color.Gray.copy(alpha = 0.5f),
-                                                shape = RoundedCornerShape(50)
                                             )
                                     )
                                 }
@@ -276,6 +262,7 @@ fun ShopScreen(
                     }
                 }
             }
+
             // Shop By Category
             SectionHeader(title = "Shop By Category")
             LazyRow(
@@ -294,9 +281,9 @@ fun ShopScreen(
                 contentPadding = PaddingValues(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                item { BrandItem("Apple", R.drawable.logo_apple) }
-                item { BrandItem("Jordan", R.drawable.logo_nike) }
-                item { BrandItem("Adidas", R.drawable.logo_nike) }
+                item { BrandItem("Apple", R.drawable.apple, R.drawable.logo_apple) }
+                item { BrandItem("Jordan", R.drawable.jordan, R.drawable.logo_jordan) }
+                item { BrandItem("Adidas", R.drawable.adidas, R.drawable.logo_nike) }
             }
 
             // Recommended For You
@@ -306,9 +293,9 @@ fun ShopScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (viewModel.recommendedProducts.isEmpty()) {
-                    item { ProductItem("iPhone 12 Pro...", "₱1,200 × 24 mo", R.drawable.img_iphone) { onNavigateToProduct("iphone") } }
-                    item { ProductItem("Headphones", "₱1,200 × 24 mo", R.drawable.img_headphones) { onNavigateToProduct("headphones") } }
-                    item { ProductItem("Sneakers", "₱1,200 × 24 mo", R.drawable.img_sneakers) { onNavigateToProduct("sneakers") } }
+                    item { ProductItem("iPhone 12 Pro...", "1,200", R.drawable.img_iphone) { onNavigateToProduct("iphone") } }
+                    item { ProductItem("Headphones", "500", R.drawable.img_headphones) { onNavigateToProduct("headphones") } }
+                    item { ProductItem("Sneakers", "800", R.drawable.img_sneakers) { onNavigateToProduct("sneakers") } }
                 } else {
                     items(viewModel.recommendedProducts.size) { index ->
                         val product = viewModel.recommendedProducts[index]
@@ -324,9 +311,9 @@ fun ShopScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 if (viewModel.bestSellers.isEmpty()) {
-                    item { ProductItem("Surface Laptop", "₱1,200 × 24 mo", R.drawable.img_iphone) { onNavigateToProduct("surface_laptop") } }
-                    item { ProductItem("iPhone 12 Pro...", "₱1,200 × 24 mo", R.drawable.img_iphone) { onNavigateToProduct("iphone") } }
-                    item { ProductItem("PS4 Play Stat...", "₱1,200 × 24 mo", R.drawable.img_headphones) { onNavigateToProduct("ps4") } }
+                    item { ProductItem("Surface Laptop", "2,500", R.drawable.img_surface) { onNavigateToProduct("surface_laptop") } }
+                    item { ProductItem("iPhone 12 Pro...", "1,200", R.drawable.img_iphone) { onNavigateToProduct("iphone") } }
+                    item { ProductItem("PS4 Play Stat...", "1,500", R.drawable.img_ps4) { onNavigateToProduct("ps4") } }
                 } else {
                     items(viewModel.bestSellers.size) { index ->
                         val product = viewModel.bestSellers[index]
@@ -350,7 +337,15 @@ fun SectionHeader(title: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = title, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text(text = "See All ->", fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.SemiBold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(text = "See All", fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.SemiBold)
+            Spacer(modifier = Modifier.width(4.dp))
+            Image(
+                painter = painterResource(id = R.drawable.arrow),
+                contentDescription = null,
+                modifier = Modifier.size(12.dp)
+            )
+        }
     }
 }
 
@@ -361,7 +356,7 @@ fun CategoryItem(name: String, imageRes: Int) {
             modifier = Modifier
                 .size(80.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFFF9F9F9)),
+                .background(Color(0xFFFCF8F8)),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -376,83 +371,105 @@ fun CategoryItem(name: String, imageRes: Int) {
 }
 
 @Composable
-fun BrandItem(name: String, imageRes: Int) {
-    Box(
-        modifier = Modifier
-            .width(140.dp)
-            .height(80.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFF9F9F9)),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+fun BrandItem(name: String, imageRes: Int, logoRes: Int) {
+    Column(modifier = Modifier.width(140.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .clip(RoundedCornerShape(12.dp))
+        ) {
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = name,
-                modifier = Modifier
-                    .size(40.dp)
-                    .padding(4.dp),
-                contentScale = ContentScale.Fit
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
-            Text(text = name, fontSize = 12.sp, color = Color.Gray)
         }
-        Image(
-            painter = painterResource(id = imageRes),
-            contentDescription = null,
+        Row(
             modifier = Modifier
-                .size(16.dp)
-                .align(Alignment.BottomEnd)
-                .padding(end = 8.dp, bottom = 8.dp),
-            alpha = 0.5f
-        )
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = name, fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
+            Image(
+                painter = painterResource(id = logoRes),
+                contentDescription = null,
+                modifier = Modifier.width(18.dp),
+                contentScale = ContentScale.Inside,
+                alpha = 0.8f
+            )
+        }
     }
 }
 
 @Composable
 fun ProductItem(name: String, price: String, imageRes: Int, onClick: () -> Unit = {}) {
-    Column(
+    Box(
         modifier = Modifier
             .width(160.dp)
+            .shadow(
+                elevation = 4.dp,
+                shape = RoundedCornerShape(16.dp),
+                ambientColor = Color.Black.copy(alpha = 0.05f),
+                spotColor = Color.Black.copy(alpha = 0.1f)
+            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFFCF8F8))
             .clickable(onClick = onClick)
     ) {
-        // Imagen con fondo gris claro — sin bloque verde
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF5F5F5)),
-            contentAlignment = Alignment.Center
-        ) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = name,
+        Column {
+            // Área de imagen — Fondo claro #FCF8F8
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                contentScale = ContentScale.Fit
-            )
+                    .fillMaxWidth()
+                    .height(150.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = name,
+                    modifier = Modifier
+                        .size(120.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            // Texto inferior
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 12.dp)
+            ) {
+                Text(
+                    text = name,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Black,
+                    maxLines = 1
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "₱$price × 24 mo",
+                    style = TextStyle(
+                        color = Color(0xFF4C662B),
+                        fontFamily = com.example.lendlyapp.ui.theme.interFontsMedium,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.sp,
+                        letterSpacing = 0.5.sp,
+                    ),
+                    lineHeight = 16.sp
+                )
+            }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = name,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            maxLines = 1,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-
-        Spacer(modifier = Modifier.height(2.dp))
-
-        Text(
-            text = price,
-            fontSize = 12.sp,
-            color = Color.Gray,
-            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-        )
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun ShopScreenPreview() {
+    // Preview dummy code
+}
