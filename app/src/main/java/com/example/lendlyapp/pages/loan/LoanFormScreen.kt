@@ -2,6 +2,7 @@ package com.example.lendlyapp.pages.loan
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,10 +29,23 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoanFormScreen(
+    viewModel: LoanViewModel,
     onNavigateBack: () -> Unit,
     onNavigateNext: () -> Unit
 ) {
-    var amount by remember { mutableStateOf("2,000.00") }
+    var amountText by remember { mutableStateOf("2000.00") }
+    var selectedPlan by remember { mutableStateOf("6 Months") }
+    val purposes = listOf("Educational", "Medical", "Business", "Personal", "Other")
+    var selectedPurpose by remember { mutableStateOf(purposes[0]) }
+    var expanded by remember { mutableStateOf(false) }
+
+    // Si la solicitud fue exitosa, navegamos a la pantalla de éxito
+    LaunchedEffect(viewModel.loanAppliedSuccess) {
+        if (viewModel.loanAppliedSuccess) {
+            onNavigateNext()
+            viewModel.loanAppliedSuccess = false // Reset state
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -51,24 +65,38 @@ fun LoanFormScreen(
             )
         },
         bottomBar = {
-            Button(
-                onClick = onNavigateNext,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7BF179)),
-                shape = RoundedCornerShape(50.dp)
+                    .height(80.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Get This Loan",
-                    style = TextStyle(
-                        fontFamily = interFontsSemiBold,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = Color(0xFF102000)
-                    )
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = Color(0xFF00C853))
+                } else {
+                    Button(
+                        onClick = { 
+                            val amount = amountText.toDoubleOrNull() ?: 0.0
+                            viewModel.applyForLoan(amount, selectedPlan, selectedPurpose) 
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7BF179)),
+                        shape = RoundedCornerShape(50.dp)
+                    ) {
+                        Text(
+                            text = "Get This Loan",
+                            style = TextStyle(
+                                fontFamily = interFontsSemiBold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = Color(0xFF102000)
+                            )
+                        )
+                    }
+                }
             }
         }
     ) { innerPadding ->
@@ -104,88 +132,138 @@ fun LoanFormScreen(
                 }
             }
 
-            // Step 1
+            // Paso 1: Monto
             item {
                 Column {
                     StepBadge(step = 1)
                     Text(
                         text = "Enter loan amount",
                         fontFamily = interFontsSemiBold,
-                        fontWeight = FontWeight.W600,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
-                    Row(
+                    OutlinedTextField(
+                        value = amountText,
+                        onValueChange = { amountText = it },
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("₱", fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                        Text(amount, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-                    }
-                    HorizontalDivider(modifier = Modifier.padding(top = 8.dp), color = Color.LightGray)
+                        textStyle = TextStyle(
+                            fontSize = 28.sp, 
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        ),
+                        prefix = { Text("₱ ", fontSize = 28.sp, fontWeight = FontWeight.Bold) },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF00C853),
+                            unfocusedBorderColor = Color.LightGray,
+                            cursorColor = Color(0xFF00C853)
+                        )
+                    )
                 }
             }
 
-            // Step 2
+            // Paso 2: Plan
             item {
                 Column {
                     StepBadge(step = 2)
                     Text(
                         text = "Select an installment plan",
                         fontFamily = interFontsSemiBold,
-                        fontWeight = FontWeight.W600,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .border(1.dp, Color(0xFF7BF179), RoundedCornerShape(12.dp)),
-                        colors = CardDefaults.cardColors(containerColor = Color.White)
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                    
+                    val plans = listOf("6 Months", "12 Months")
+                    plans.forEach { plan ->
+                        val isSelected = selectedPlan == plan
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                                .clickable { selectedPlan = plan }
+                                .border(
+                                    width = 1.dp, 
+                                    color = if (isSelected) Color(0xFF7BF179) else Color.Transparent, 
+                                    shape = RoundedCornerShape(12.dp)
+                                ),
+                            colors = CardDefaults.cardColors(
+                                containerColor = if (isSelected) Color(0xFFF1FFF1) else Color(0xFFF9F9F9)
+                            )
                         ) {
-                            Column {
-                                Text("6 Months", fontFamily = interFontsSemiBold, fontSize = 16.sp)
-                                Text("2.99% Interest", color = Color.Gray, fontSize = 12.sp)
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(plan, fontFamily = interFontsSemiBold, fontSize = 16.sp)
+                                    Text(
+                                        text = if(plan == "6 Months") "2.99% Interest" else "4.99% Interest", 
+                                        color = Color.Gray, 
+                                        fontSize = 12.sp
+                                    )
+                                }
+                                val monthly = if(plan == "6 Months") "₱ 982.12/mo" else "₱ 491.06/mo"
+                                Text(
+                                    text = monthly, 
+                                    fontWeight = FontWeight.Bold, 
+                                    fontSize = 16.sp
+                                )
                             }
-                            Text("₱ 982.12/mo", fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
                     }
                 }
             }
 
-            // Step 3
+            // Paso 3: Propósito
             item {
                 Column {
                     StepBadge(step = 3)
                     Text(
                         text = "Select your loan purpose",
                         fontFamily = interFontsSemiBold,
-                        fontWeight = FontWeight.W600,
                         fontSize = 14.sp,
                         modifier = Modifier.padding(vertical = 12.dp)
                     )
-                    OutlinedCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                    
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                        OutlinedTextField(
+                            value = selectedPurpose,
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color(0xFF00C853),
+                                unfocusedBorderColor = Color.LightGray
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
                         ) {
-                            Text("Educational", fontFamily = interFontsRegular)
-                            Icon(Icons.Default.KeyboardArrowDown, contentDescription = null)
+                            purposes.forEach { purpose ->
+                                DropdownMenuItem(
+                                    text = { Text(purpose, fontFamily = interFontsRegular) },
+                                    onClick = {
+                                        selectedPurpose = purpose
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
 
-            // Summary
+            // Resumen
             item {
                 Column(
                     modifier = Modifier
@@ -199,11 +277,17 @@ fun LoanFormScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    SummaryRow("Loan Amount", "PHP 2,000.00")
-                    SummaryRow("3% Processing Fee", "-150.00")
+                    
+                    val amount = amountText.toDoubleOrNull() ?: 0.0
+                    val processingFee = amount * 0.03
+                    val total = amount - processingFee
+                    
+                    SummaryRow("Loan Amount", "PHP $amountText")
+                    SummaryRow("3% Processing Fee", "-${String.format("%.2f", processingFee)}")
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
-                    SummaryRow("Total amount to Receive", "₱ 2,000.00", isBold = true)
-                    SummaryRow("Lender", "null")
+                    SummaryRow("Total amount to Receive", "₱ ${String.format("%.2f", amount)}", isBold = true)
+                    SummaryRow("Lender", "Rayland Finance")
+                    
                     Text(
                         "What is this?",
                         style = TextStyle(
@@ -213,6 +297,18 @@ fun LoanFormScreen(
                             color = Color.Black
                         ),
                         modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+
+            // Mostrar error si existe
+            viewModel.errorMessage?.let { error ->
+                item {
+                    Text(
+                        text = error, 
+                        color = Color.Red, 
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 16.dp)
                     )
                 }
             }

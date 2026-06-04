@@ -350,7 +350,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.LoanForm.route) {
+                            val loanViewModel: com.example.lendlyapp.pages.loan.LoanViewModel = hiltViewModel()
                             LoanFormScreen(
+                                viewModel = loanViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onNavigateNext = {
                                     navController.navigate(Screen.LoanSuccess.route)
@@ -369,7 +371,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.ActiveLoans.route) {
+                            val loanViewModel: com.example.lendlyapp.pages.loan.LoanViewModel = hiltViewModel()
                             ActiveLoansScreen(
+                                viewModel = loanViewModel,
                                 onNavigateBack = { navController.popBackStack() }
                             )
                         }

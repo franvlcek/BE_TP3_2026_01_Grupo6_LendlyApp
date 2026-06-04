@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,12 +23,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.R
+import com.example.lendlyapp.data.model.LoanModel
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveLoansScreen(
+    viewModel: LoanViewModel,
     onNavigateBack: () -> Unit
 ) {
     Scaffold(
@@ -48,46 +51,64 @@ fun ActiveLoansScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White),
-            contentPadding = PaddingValues(16.dp)
+                .background(Color.White)
         ) {
-            item {
+            if (viewModel.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center), color = Color(0xFF00C853))
+            } else if (viewModel.errorMessage != null) {
                 Text(
-                    text = "Present",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    text = viewModel.errorMessage!!,
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.Center).padding(16.dp)
                 )
-            }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    item {
+                        Text(
+                            text = "Present",
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                    }
 
-            items(3) {
-                ActiveLoanItem()
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+                    // Préstamos Activos Reales
+                    val activeLoans = viewModel.loans.filter { it.isActive }
+                    items(activeLoans) { loan ->
+                        RealLoanItem(loan)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
 
-            item {
-                Text(
-                    text = "Recent Loans",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(vertical = 16.dp)
-                )
-            }
+                    item {
+                        Text(
+                            text = "Recent Loans",
+                            color = Color.Gray,
+                            fontSize = 14.sp,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                    }
 
-            items(3) {
-                RecentLoanItem()
-                Spacer(modifier = Modifier.height(12.dp))
+                    // Préstamos Históricos Reales
+                    val paidLoans = viewModel.loans.filter { !it.isActive }
+                    items(paidLoans) { loan ->
+                        RealRecentLoanItem(loan)
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun ActiveLoanItem() {
+fun RealLoanItem(loan: LoanModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -109,19 +130,19 @@ fun ActiveLoanItem() {
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("Apple Inc.", fontSize = 12.sp, color = Color.Gray)
-                Text("iPhone 15 Pro Max", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text(loan.company, fontSize = 12.sp, color = Color.Gray)
+                Text("Loan #${loan.id.take(5)}", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             }
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text("Fees of febuary", fontSize = 11.sp, color = Color.Gray)
-            Text("1,2555 PHP", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text("Fees of month", fontSize = 11.sp, color = Color.Gray)
+            Text(loan.formattedAmount, fontWeight = FontWeight.Bold, fontSize = 14.sp)
         }
     }
 }
 
 @Composable
-fun RecentLoanItem() {
+fun RealRecentLoanItem(loan: LoanModel) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -139,13 +160,12 @@ fun RecentLoanItem() {
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column {
-                Text("02/08/2024", fontSize = 11.sp, color = Color.Gray)
-                Text("iPhone 15 Pro Max", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text(loan.date, fontSize = 11.sp, color = Color.Gray)
+                Text(loan.company, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
             }
         }
         Column(horizontalAlignment = Alignment.End) {
-            Text("Apple Inc.", fontSize = 11.sp, color = Color.Gray)
-            Text("Paid", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+            Text("Paid", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color(0xFF00C853))
         }
     }
 }
