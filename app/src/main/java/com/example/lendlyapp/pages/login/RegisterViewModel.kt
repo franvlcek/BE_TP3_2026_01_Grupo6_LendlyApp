@@ -4,11 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.lendlyapp.data.model.RegisterRequest
+import com.example.lendlyapp.data.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegisterViewModel @Inject constructor() : ViewModel() {
+class RegisterViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     var email by mutableStateOf("")
         private set
@@ -29,6 +35,12 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
         private set
 
     var confirmPasswordError by mutableStateOf<String?>(null)
+        private set
+
+    var isLoading by mutableStateOf(false)
+        private set
+
+    var generalError by mutableStateOf<String?>(null)
         private set
 
     fun onEmailChanged(newValue: String) {
@@ -76,7 +88,29 @@ class RegisterViewModel @Inject constructor() : ViewModel() {
         }
 
         if (!hasError) {
-            onSuccess()
+            viewModelScope.launch {
+                isLoading = true
+                generalError = null
+                
+                // En un flujo real, aquí pasaríamos los datos recolectados. 
+                // Por ahora usamos placeholders para los campos que la API pide pero no están en esta pantalla.
+                val request = RegisterRequest(
+                    email = email,
+                    password = password,
+                    fullName = "New User", // Placeholder inicial
+                    phone = "000000000"
+                )
+                
+                authRepository.register(request)
+                    .onSuccess { 
+                        onSuccess()
+                    }
+                    .onFailure { exception ->
+                        generalError = "Error al crear cuenta: ${exception.localizedMessage}"
+                    }
+                
+                isLoading = false
+            }
         }
     }
 }

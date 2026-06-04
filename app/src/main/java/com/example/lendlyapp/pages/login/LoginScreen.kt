@@ -3,6 +3,7 @@ package com.example.lendlyapp.pages.login
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -29,23 +30,17 @@ import com.example.lendlyapp.ui.theme.interFontsSemiBold
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel,
-    onNavigateToHome: () -> Unit,
+    onNavigateToHome: (Boolean) -> Unit,
     onNavigateToRegister: () -> Unit = {},
     onNavigateToForgotPassword: () -> Unit = {}
 ) {
     var passwordVisible by remember { mutableStateOf(value = false) }
     var passwordLocalError by remember { mutableStateOf<String?>(null) }
-
-    // Inicializamos el email por defecto ya que en este diseño el usuario ya está "seleccionado" (John Doe)
-    LaunchedEffect(Unit) {
-        if (viewModel.email.isBlank()) {
-            viewModel.onEmailChanged("john.doe@example.com")
-        }
-    }
+    var emailLocalError by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(viewModel.loginSuccess) {
         if (viewModel.loginSuccess) {
-            onNavigateToHome()
+            onNavigateToHome(viewModel.isVerified)
         }
     }
 
@@ -59,7 +54,7 @@ fun LoginScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // "Login Page" label at the top (like in the photo)
+            // "Login Page" label at the top
             Text(
                 text = "Login Page",
                 fontSize = 14.sp,
@@ -69,63 +64,95 @@ fun LoginScreen(
                     .padding(top = 16.dp)
             )
 
-            // Imagen del Splash (Logo)
+            // Imagen del Logo
             Image(
                 painter = painterResource(id = R.drawable.frame_134),
                 contentDescription = "Logo",
                 modifier = Modifier
-                    .size(240.dp)
-                    .padding(top = 40.dp)
+                    .size(200.dp)
+                    .padding(top = 20.dp)
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            // Perfil de usuario (John Doe)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    modifier = Modifier.size(48.dp),
-                    shape = androidx.compose.foundation.shape.CircleShape,
-                    color = Color(0xFFF5F5F5)
+            if (viewModel.isUserSelected) {
+                // Modo Usuario Seleccionado (Avatar + Nombre)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    Surface(
+                        modifier = Modifier.size(48.dp),
+                        shape = androidx.compose.foundation.shape.CircleShape,
+                        color = Color(0xFFF5F5F5)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = viewModel.displayName.take(2).uppercase(),
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "JD",
+                            text = viewModel.displayName,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
+                            fontFamily = interFontsSemiBold
+                        )
+                        Text(
+                            text = viewModel.email,
+                            fontSize = 14.sp,
                             color = Color.Gray
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "John Doe",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = interFontsSemiBold
-                    )
-                    Text(
-                        text = "+63-923456790",
+                        text = "Change",
+                        color = Color(0xFF4C662B),
                         fontSize = 14.sp,
-                        color = Color.Gray
+                        fontWeight = FontWeight.Bold,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .clickable { viewModel.onChangeUser() }
                     )
                 }
-
+            } else {
+                // Modo Ingresar Email
                 Text(
-                    text = "Change",
-                    color = Color(0xFF4C662B),
+                    text = "Email Address",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = viewModel.email,
+                    onValueChange = { 
+                        viewModel.onEmailChanged(it)
+                        emailLocalError = null
+                    },
+                    placeholder = { Text("example@mail.com") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    singleLine = true,
+                    isError = emailLocalError != null,
+                    supportingText = {
+                        if (emailLocalError != null) {
+                            Text(text = emailLocalError!!, color = MaterialTheme.colorScheme.error)
+                        }
+                    }
                 )
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Etiqueta de Password
             Text(
@@ -144,7 +171,7 @@ fun LoginScreen(
                     viewModel.onPasswordChanged(it)
                     passwordLocalError = null
                 },
-                placeholder = { Text("123123123") },
+                placeholder = { Text("********") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -156,7 +183,7 @@ fun LoginScreen(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 singleLine = true,
                 enabled = !viewModel.isLoading,
-                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color.LightGray,
                     focusedBorderColor = Color(0xFF4C662B)

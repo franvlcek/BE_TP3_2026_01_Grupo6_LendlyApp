@@ -16,10 +16,10 @@ import javax.inject.Inject
 // Anotación clave para que Hilt sepa cómo construir este ViewModel
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val sessionManager: com.example.lendlyapp.data.session.SessionManager
 ) : ViewModel() {
 
-    // Estados mutables que la pantalla (Compose) va a "observar" en tiempo real
     var email by mutableStateOf("")
         private set
 
@@ -35,10 +35,35 @@ class LoginViewModel @Inject constructor(
     var loginSuccess by mutableStateOf(false)
         private set
 
-    // Funciones para actualizar lo que el usuario escribe en los campos de texto
+    var isVerified by mutableStateOf(false)
+        private set
+
+    var isUserSelected by mutableStateOf(false)
+        private set
+
+    var displayName by mutableStateOf("")
+        private set
+
+    init {
+        // Al iniciar, verificamos si hay un usuario previo en la sesión
+        val savedEmail = sessionManager.getEmail()
+        if (!savedEmail.isNullOrBlank()) {
+            email = savedEmail
+            displayName = sessionManager.getFullName() ?: savedEmail
+            isUserSelected = true
+        }
+    }
+
     fun onEmailChanged(newEmail: String) {
         email = newEmail
-        errorMessage = null // Limpiamos el error si empieza a escribir de nuevo
+        errorMessage = null
+    }
+
+    fun onChangeUser() {
+        isUserSelected = false
+        email = ""
+        displayName = ""
+        sessionManager.clearSession()
     }
 
     fun onPasswordChanged(newPassword: String) {
@@ -70,6 +95,8 @@ class LoginViewModel @Inject constructor(
             val result = authRepository.login(request)
 
             result.onSuccess {
+                // Leemos el estado final de verificación (que incluye el parche del Mock)
+                isVerified = sessionManager.isVerified()
                 loginSuccess = true
             }
             result.onFailure { exception ->
