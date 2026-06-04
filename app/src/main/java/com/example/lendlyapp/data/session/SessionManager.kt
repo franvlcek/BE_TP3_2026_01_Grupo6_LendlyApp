@@ -29,7 +29,10 @@ class SessionManager @Inject constructor(
         phone: String,
         birthDate: String?,
         address: String?,
-        avatar: String
+        city: String? = null,
+        postalCode: String? = null,
+        avatar: String? = null,
+        isVerified: Boolean = false
     ) {
         prefs.edit {
             putString("auth_token", token)
@@ -39,7 +42,10 @@ class SessionManager @Inject constructor(
             putString("phone", phone)
             putString("birth_date", birthDate)
             putString("address", address)
+            putString("city", city)
+            putString("postal_code", postalCode)
             putString("avatar", avatar)
+            putBoolean("is_verified", isVerified)
         }
         _tokenFlow.value = token
         _userIdFlow.value = userId
@@ -49,17 +55,32 @@ class SessionManager @Inject constructor(
     fun getUserId(): String? = prefs.getString("user_id", null)
     fun getFullName(): String? = prefs.getString("full_name", null)
     fun getEmail(): String? = prefs.getString("email", null)
-
     fun getPhone(): String? = prefs.getString("phone", null)
-
     fun getBirthDate(): String? = prefs.getString("birth_date", null)
-
     fun getAddress(): String? = prefs.getString("address", null)
+    fun getCity(): String? = prefs.getString("city", null)
+    fun getPostalCode(): String? = prefs.getString("postal_code", null)
     fun getAvatar(): String? = prefs.getString("avatar", null)
+    fun isVerified(): Boolean = prefs.getBoolean("is_verified", false)
+    
+    fun setVerified(verified: Boolean) {
+        prefs.edit { putBoolean("is_verified", verified) }
+    }
+
     fun isSessionActive(): Boolean = getToken() != null
 
 
     fun clearSession() {
+        prefs.edit { 
+            remove("auth_token") // Solo quitamos el token para cerrar la sesión
+        }
+        _tokenFlow.value = null
+    }
+
+    /**
+     * Borra absolutamente todos los datos (vuelve al estado de fábrica)
+     */
+    fun wipeAllData() {
         prefs.edit { clear() }
         _tokenFlow.value = null
         _userIdFlow.value = null
