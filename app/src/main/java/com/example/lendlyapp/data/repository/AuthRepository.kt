@@ -14,62 +14,54 @@ class AuthRepository @Inject constructor(
     private val apiService: ApiService,
     private val sessionManager: SessionManager
 ) {
-    /**
-     * Intenta iniciar sesión con la API.
-     * Si es exitoso, guarda el token e ID localmente en el dispositivo.
-     */
     suspend fun login(request: LoginRequest): Result<LoginResponse> {
-        return runCatching {
-            // Llamamos a la API (Retrofit se encarga de suspender el hilo de fondo)
+        return try {
+            android.util.Log.d("AuthRepo", "Intentando login para: ${request.email}")
             val response = apiService.login(request)
 
-            // Si la respuesta fue exitosa y trae el token, lo persistimos en SharedPreferences
             if (response.token.isNotEmpty()) {
-                val existingName = sessionManager.getFullName()
-                val isJohnDoe = response.user.email == "john.doe@email.com"
+                val localEmail = sessionManager.getEmail()
                 
-                val finalName = if (isJohnDoe && !existingName.isNullOrBlank()) existingName else response.user.fullName
-                
-                // Si NO es John Doe, manejamos la verificación de forma puramente local
-                val finalVerified = if (isJohnDoe) response.user.isVerified else sessionManager.isVerified()
-                
-                // Si es John Doe usamos el ID 1 de la API, sino mantenemos el ID local o 0
-                val finalUserId = if (isJohnDoe) "1" else (sessionManager.getUserId() ?: "0")
+                // Si cambiamos de usuario, limpiamos todo lo anterior
+                if (localEmail != null && !localEmail.equals(response.user.email, ignoreCase = true)) {
+                    android.util.Log.d("AuthRepo", "Cambio de usuario detectado. Limpiando datos previos.")
+                    sessionManager.wipeAllData()
+                }
 
-                // Truco para el Mock: No sobreescribir datos locales con nulos de la API
-                val finalCity = response.user.city ?: sessionManager.getCity()
-                val finalPostalCode = response.user.postalCode ?: sessionManager.getPostalCode()
+                val isJohnDoe = response.user.email.lowercase().contains("john.doe")
+                
+                // Si es John Doe, la API manda. Si no, mandamos nosotros localmente.
+                val finalVerified = if (isJohnDoe) true else sessionManager.isVerified()
 
                 sessionManager.saveSession(
                     token = response.token,
-                    userId = finalUserId,
-                    fullName = finalName,
+                    userId = response.user.id.toString(),
+                    fullName = response.user.fullName,
                     email = response.user.email,
                     phone = response.user.phone,
                     birthDate = response.user.birthDate,
                     address = response.user.address,
-                    city = finalCity,
-                    postalCode = finalPostalCode,
+                    city = response.user.city ?: sessionManager.getCity(),
+                    postalCode = response.user.postalCode ?: sessionManager.getPostalCode(),
                     avatar = response.user.avatar,
                     isVerified = finalVerified
                 )
+                android.util.Log.d("AuthRepo", "Login exitoso. Verificado: $finalVerified")
             }
-
-            response
+            Result.success(response)
+        } catch (e: Exception) {
+            android.util.Log.e("AuthRepo", "Error en login: ${e.message}")
+            Result.failure(e)
         }
     }
 
-    /**
-     * Registra un nuevo usuario en la API.
-     */
     suspend fun register(request: RegisterRequest): Result<RegisterResponse> {
         return try {
-            android.util.Log.d("AuthRepo", "Intentando registrar usuario: ${request.email}")
+            android.util.Log.d("AuthRepo", "Registrando: ${request.email}")
             val response = apiService.register(request)
             
-            // Persistimos los datos básicos para que el Login los reconozca después
             sessionManager.saveSession(
-                token = "temp_token", // Token temporal hasta el login real
+                token = "temp_token",
                 userId = response.finalId ?: "0",
                 fullName = request.fullName,
                 email = request.email,
@@ -81,25 +73,15 @@ class AuthRepository @Inject constructor(
                 avatar = null,
                 isVerified = false
             )
-            
-            android.util.Log.d("AuthRepo", "¡Registro exitoso y guardado localmente! ID: ${response.finalId}")
             Result.success(response)
         } catch (e: Exception) {
-            android.util.Log.e("AuthRepo", "Fallo el registro en la API: ${e.message}")
+            android.util.Log.e("AuthRepo", "Error en registro: ${e.message}")
             Result.failure(e)
         }
     }
 
-    /**
-     * Verifica de forma rápida si el usuario ya está logueado en este dispositivo.
-     */
-    fun isUserLoggedIn(): Boolean {
-        return sessionManager.isSessionActive()
-    }
+    fun isUserLoggedIn(): Boolean = sessionManager.isSessionActive()
 
-    /**
-     * Borra los datos del dispositivo para cerrar la sesión.
-     */
     fun logout() {
         sessionManager.clearSession()
     }
