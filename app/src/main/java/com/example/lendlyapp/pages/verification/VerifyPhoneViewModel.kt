@@ -8,7 +8,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class VerifyPhoneViewModel @Inject constructor() : ViewModel() {
+class VerifyPhoneViewModel @Inject constructor(
+    private val sessionManager: com.example.lendlyapp.data.session.SessionManager
+) : ViewModel() {
 
     var phoneNumber by mutableStateOf("")
         private set
@@ -35,6 +37,20 @@ class VerifyPhoneViewModel @Inject constructor() : ViewModel() {
 
     fun validate(onSuccess: () -> Unit) {
         if (phoneNumber.isNotBlank() && countryCode.isNotBlank()) {
+            // Guardamos el teléfono en la sesión para que persista
+            sessionManager.saveSession(
+                token = sessionManager.getToken() ?: "temp_token",
+                userId = sessionManager.getUserId() ?: "0",
+                fullName = sessionManager.getFullName() ?: "User",
+                email = sessionManager.getEmail() ?: "",
+                phone = "$countryCode-$phoneNumber",
+                birthDate = sessionManager.getBirthDate(),
+                address = sessionManager.getAddress(),
+                city = sessionManager.getCity(),
+                postalCode = sessionManager.getPostalCode(),
+                avatar = sessionManager.getAvatar(),
+                isVerified = sessionManager.isVerified()
+            )
             onSuccess()
         } else {
             phoneError = "Phone number is required"

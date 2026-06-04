@@ -9,7 +9,9 @@ import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileDetailViewModel @Inject constructor() : ViewModel() {
+class ProfileDetailViewModel @Inject constructor(
+    private val sessionManager: com.example.lendlyapp.data.session.SessionManager
+) : ViewModel() {
 
     var firstName by mutableStateOf("")
         private set
@@ -152,6 +154,21 @@ class ProfileDetailViewModel @Inject constructor() : ViewModel() {
         }
 
         if (!hasError) {
+            // Guardamos los datos reales en la sesión local para que persistan
+            val fullName = "$firstName $lastName"
+            sessionManager.saveSession(
+                token = sessionManager.getToken() ?: "temp_token",
+                userId = sessionManager.getUserId() ?: "0",
+                fullName = fullName,
+                email = sessionManager.getEmail() ?: "",
+                phone = phone,
+                birthDate = "$day/$month/$year",
+                address = address,
+                city = city,
+                postalCode = postalCode,
+                avatar = sessionManager.getAvatar(),
+                isVerified = false // Sigue en flujo de verificación
+            )
             onSuccess()
         }
     }
