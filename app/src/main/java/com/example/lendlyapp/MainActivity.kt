@@ -128,9 +128,14 @@ class MainActivity : ComponentActivity() {
                             val loginViewModel: com.example.lendlyapp.pages.login.LoginViewModel = hiltViewModel()
                             LoginScreen(
                                 viewModel = loginViewModel,
-                                onNavigateToHome = {
-                                    // Después del login, vamos a verificar el teléfono
-                                    navController.navigate(Screen.VerifyPhone.route)
+                                onNavigateToHome = { isVerified ->
+                                    if (isVerified) {
+                                        navController.navigate(Screen.Home.route) {
+                                            popUpTo(Screen.Login.route) { inclusive = true }
+                                        }
+                                    } else {
+                                        navController.navigate(Screen.VerifyPhone.route)
+                                    }
                                 },
                                 onNavigateToRegister = {
                                     navController.navigate(Screen.Register.route)
@@ -254,6 +259,7 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.RegistrationDone.route) {
                             RegistrationDoneScreen(
                                 onDone = {
+                                    sessionManager.setVerified(true)
                                     navController.navigate(Screen.Home.route) {
                                         popUpTo(0) { inclusive = true }
                                     }
@@ -262,7 +268,9 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable(Screen.Home.route) {
+                            val homeViewModel: com.example.lendlyapp.pages.home.HomeViewModel = hiltViewModel()
                             HomeScreen(
+                                viewModel = homeViewModel,
                                 onNavigateToCashIn = {
                                     navController.navigate(Screen.CashInOptions.route)
                                 },
@@ -323,8 +331,11 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument(Screen.Product.ARG_PRODUCT_ID) { type = NavType.StringType })
                         ) { backStackEntry ->
                             val productId = backStackEntry.arguments?.getString(Screen.Product.ARG_PRODUCT_ID) ?: "iphone"
+                            val productViewModel: com.example.lendlyapp.pages.shop.ProductViewModel = hiltViewModel()
+                            
                             ProductScreen(
                                 productId = productId,
+                                viewModel = productViewModel,
                                 onNavigateBack = { navController.popBackStack() },
                                 onContinue = {
                                     navController.popBackStack()
@@ -431,8 +442,9 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.Manage.route) {
+                            val manageViewModel: com.example.lendlyapp.pages.manage.ManageViewModel = hiltViewModel()
                             ManageScreen(
-                                sessionManager = sessionManager,
+                                viewModel = manageViewModel,
                                 onLogout = {
                                     navController.navigate(Screen.Onboarding.route) {
                                         popUpTo(0)
@@ -447,16 +459,18 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         composable(Screen.ProfileDetails.route) {
+                            val manageProfileViewModel: com.example.lendlyapp.pages.manage.ManageProfileViewModel = hiltViewModel()
                             ManageProfileDetailScreen(
-                                sessionManager = sessionManager,
+                                viewModel = manageProfileViewModel,
                                 onBack = {
                                     navController.popBackStack()
                                 }
                             )
                         }
                         composable(Screen.CreditScore.route) {
+                            val creditScoreViewModel: com.example.lendlyapp.pages.manage.CreditScoreViewModel = hiltViewModel()
                             CreditScoreScreen(
-                                sessionManager = sessionManager,
+                                viewModel = creditScoreViewModel,
                                 onBack = {
                                     navController.popBackStack()
                                 }

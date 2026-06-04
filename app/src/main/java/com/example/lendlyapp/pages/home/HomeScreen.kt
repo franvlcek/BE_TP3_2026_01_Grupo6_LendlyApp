@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.R
+import java.util.Locale
 import com.example.lendlyapp.components.AccountBalanceCard
 import com.example.lendlyapp.components.LoanItem
 import com.example.lendlyapp.components.ProductCard
@@ -25,11 +26,14 @@ import com.example.lendlyapp.ui.theme.interFontsSemiBold
 
 @Composable
 fun HomeScreen(
+    viewModel: HomeViewModel,
     onNavigateToCashIn: () -> Unit,
     onNavigateToProduct: (String) -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
-    val navigateToProduct = onNavigateToProduct
+    val profile = viewModel.userProfile
+    val balance = if (profile != null) "₱ ${String.format(Locale.US, "%,.2f", profile.availableBalance)}" else "₱ 0.00"
+    
     Scaffold(
         topBar = {
             HomeTopBar(onNavigateToProfile = onNavigateToProfile)
@@ -44,7 +48,7 @@ fun HomeScreen(
             // 1. Tarjeta de Saldo
             item {
                 AccountBalanceCard(
-                    balance = "₱ 2,500.00",
+                    balance = balance,
                     onCashInClick = onNavigateToCashIn
                 )
             }
@@ -91,7 +95,7 @@ fun HomeScreen(
                             name = "iPhone 12 Pro Max",
                             price = "₱1,200 x 24 mo",
                             imageResId = R.drawable.img_iphone,
-                            onClick = { navigateToProduct("iphone") }
+                            onClick = { onNavigateToProduct("iphone") }
                         )
                     }
                     item {
@@ -99,7 +103,7 @@ fun HomeScreen(
                             name = "Headphones",
                             price = "₱500 x 6 mo",
                             imageResId = R.drawable.img_headphones,
-                            onClick = { navigateToProduct("headphones") }
+                            onClick = { onNavigateToProduct("headphones") }
                         )
                     }
                     item {
@@ -107,7 +111,7 @@ fun HomeScreen(
                             name = "Nike Sneakers",
                             price = "₱800 x 12 mo",
                             imageResId = R.drawable.img_sneakers,
-                            onClick = { navigateToProduct("sneakers") }
+                            onClick = { onNavigateToProduct("sneakers") }
                         )
                     }
                 }
