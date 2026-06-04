@@ -1,13 +1,14 @@
 package com.example.lendlyapp.pages.shop
 
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.lendlyapp.data.model.Product
 import com.example.lendlyapp.data.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,12 +22,31 @@ class ShopViewModel @Inject constructor(
     var bestSellers by mutableStateOf<List<Product>>(emptyList())
         private set
 
+    var isLoading by mutableStateOf(false)
+        private set
+
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
+
     init {
         loadData()
     }
 
-    private fun loadData() {
-        recommendedProducts = productRepository.getRecommendedProducts()
-        bestSellers = productRepository.getBestSellers()
+    fun loadData() {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            
+            val result = productRepository.getAllProducts()
+            
+            result.onSuccess { products ->
+                recommendedProducts = products.filter { it.isRecommended }
+                bestSellers = products.filter { it.isBestSeller }
+            }.onFailure { exception ->
+                errorMessage = "Error al cargar productos: ${exception.localizedMessage}"
+            }
+            
+            isLoading = false
+        }
     }
 }

@@ -1,19 +1,25 @@
 package com.example.lendlyapp.data.network
 
-import com.example.lendlyapp.data.model.LoanApplyRequest
-import com.example.lendlyapp.data.model.LoanDTO
-import com.example.lendlyapp.data.model.LoansResponse
-import com.example.lendlyapp.data.model.LoginRequest
-import com.example.lendlyapp.data.model.LoginResponse
+import com.example.lendlyapp.data.model.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ApiService {
     @POST("auth/login")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
-    // Probamos con LoansResponse en lugar de List directamente por el error BEGIN_OBJECT
+    @POST("auth/create")
+    suspend fun register(@Body request: RegisterRequest): RegisterResponse
+
+    @GET("users/{id}")
+    suspend fun getUserProfile(@Path("id") userId: String): UserResponse
+
+    @GET("products")
+    suspend fun getProducts(): ProductResponse
+
+    // Obtener préstamos activos e historial
     @GET("loans")
     suspend fun getLoans(): LoansResponse
 

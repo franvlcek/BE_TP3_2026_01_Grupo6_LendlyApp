@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
@@ -23,6 +24,7 @@ fun ProductCard(
     name: String,
     price: String,
     imageResId: Int? = null,
+    imageUrl: String? = null,
     onClick: () -> Unit = {}
 ) {
     Card(
@@ -46,7 +48,14 @@ fun ProductCard(
                     .background(Color(0xFFF9F9F9), shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                if (imageResId != null) {
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = name,
+                        modifier = Modifier.fillMaxSize().padding(4.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (imageResId != null) {
                     Image(
                         painter = painterResource(id = imageResId),
                         contentDescription = name,

@@ -2,35 +2,51 @@ package com.example.lendlyapp.data.model
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * Modelo para enviar al endpoint POST /auth/login
- */
 data class LoginRequest(
-    @SerializedName("email") val email: String,
-    @SerializedName("password") val password: String
+    val email: String,
+    val password: String
 )
 
-/**
- * Modelo para recibir la respuesta del endpoint POST /auth/login
- */
 data class LoginResponse(
-    @SerializedName("success") val success: Boolean,
-    @SerializedName("token") val token: String,
-    @SerializedName("user") val user: UserData
+    val token: String,
+    val user: UserProfile
 )
 
-/**
- * Submodelo que contiene la información del usuario devuelta por la API
- */
-data class UserData(
-    @SerializedName("id") val id: Int, // Viene como Int en el JSON (id: 1)
-    @SerializedName("fullName") val fullName: String,
-    @SerializedName("phone") val phone: String,
-    @SerializedName("email") val email: String,
-    @SerializedName("avatar") val avatar: String,
-    @SerializedName("creditScore") val creditScore: Int,
-    @SerializedName("availableBalance") val availableBalance: Double,
-    @SerializedName("memberSince") val memberSince: String,
-    @SerializedName("birthDate") val birthDate: String = "",
-    @SerializedName("address") val address: String = ""
+data class RegisterRequest(
+    val email: String,
+    val password: String,
+    val fullName: String,
+    val phone: String
+)
+
+data class RegisterResponse(
+    val success: Boolean,
+    val message: String,
+    @SerializedName("id") val id: String? = null,
+    @SerializedName("userId") val userId: String? = null
+) {
+    val finalId: String? get() = id ?: userId
+}
+
+data class UserResponse(
+    val success: Boolean,
+    val user: UserProfile?
+)
+
+data class UserProfile(
+    val id: Int,
+    val fullName: String,
+    val phone: String,
+    val email: String,
+    val avatar: String? = null,
+    val birthDate: String? = null,
+    val address: String? = null,
+    val city: String? = null,
+    val postalCode: String? = null,
+    val creditScore: Int = 0,
+    val creditLevel: String? = null,
+    val availableBalance: Double = 0.0,
+    val totalLoanLimit: Double = 0.0,
+    val memberSince: String? = null,
+    val isVerified: Boolean = false
 )

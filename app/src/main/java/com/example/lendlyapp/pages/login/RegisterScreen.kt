@@ -125,15 +125,27 @@ fun RegisterScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            PrimaryButton(
-                text = "Register",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                onClick = {
-                    viewModel.validate(onSuccess = onNavigateToVerify)
+            if (viewModel.isLoading) {
+                CircularProgressIndicator(color = Color(0xFF7BF179))
+            } else {
+                viewModel.generalError?.let { error ->
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
                 }
-            )
+
+                PrimaryButton(
+                    text = "Register",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    onClick = {
+                        viewModel.validate(onSuccess = onNavigateToVerify)
+                    }
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             

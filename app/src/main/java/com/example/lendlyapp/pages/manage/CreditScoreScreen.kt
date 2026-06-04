@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -49,27 +50,26 @@ import com.example.lendlyapp.ui.theme.montserratFontsSemiBold
 
 @Composable
 fun CreditScoreScreen(
-    sessionManager: SessionManager,
+    viewModel: CreditScoreViewModel,
     onBack: () -> Unit
 ){
+    val profile = viewModel.userProfile
+    val score = profile?.creditScore ?: 720
+    val level = profile?.creditLevel ?: "Good"
+
     Column(
         modifier = Modifier.fillMaxSize(),
-        //horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth().clickable {
-                    onBack()
-                }
-            ) {
+            IconButton(onClick = onBack) {
                 Image(
                     painter = painterResource(R.drawable.back_arrow),
-                    contentDescription = "BackArrow",
-                    modifier = Modifier.size(width = 40.dp, height = 40.dp).padding(start = 8.dp)
+                    contentDescription = "Back",
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -80,65 +80,71 @@ fun CreditScoreScreen(
             modifier = Modifier.padding(start = 16.dp),
             textAlign = TextAlign.Start
         )
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxWidth().padding(top =32.dp).height(475.dp)
-                .background(Color(0xffFCF8F8),shape = RoundedCornerShape(16.dp)),
-        ){
-            CreditScoreWidget(720)
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxWidth()
-            ){
-                Text(
-                    text = "720",
-                    fontSize = 45.sp,
-                    fontFamily = montserratFontsSemiBold,
-                    modifier = Modifier.padding(top = 250.dp)
-                )
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(color = Color(0xff6A6C6A))) {
-                            append("Your Score is ")
-                        }
-                        withStyle(style = SpanStyle()) {
-                            append("Good")
-                        }
-                    },
-                    fontSize = 22.sp,
-                    fontFamily = interFontsSemiBold,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = Color(0xFFE5E2E1),
-                    modifier = Modifier.padding(start = 16.dp, top = 32.dp, end = 16.dp)
-                )
-                Box(
+        
+        if (viewModel.isLoading) {
+            Box(Modifier.fillMaxWidth().height(475.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF7BF179))
+            }
+        } else {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = 32.dp).height(475.dp)
+                    .background(Color(0xffFCF8F8), shape = RoundedCornerShape(16.dp)),
+            ) {
+                CreditScoreWidget(score)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
-                ){
+                ) {
                     Text(
-                        text = "What is Credit Score?",
-                        textAlign = TextAlign.Start,
-                        fontSize = 14.sp,
+                        text = score.toString(),
+                        fontSize = 45.sp,
+                        fontFamily = montserratFontsSemiBold,
+                        modifier = Modifier.padding(top = 250.dp)
+                    )
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(color = Color(0xff6A6C6A))) {
+                                append("Your Score is ")
+                            }
+                            withStyle(style = SpanStyle()) {
+                                append(level)
+                            }
+                        },
+                        fontSize = 22.sp,
                         fontFamily = interFontsSemiBold,
-                        modifier = Modifier.padding(start = 16.dp),
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = Color(0xFFE5E2E1),
+                        modifier = Modifier.padding(start = 16.dp, top = 32.dp, end = 16.dp)
+                    )
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "What is Credit Score?",
+                            textAlign = TextAlign.Start,
+                            fontSize = 14.sp,
+                            fontFamily = interFontsSemiBold,
+                            modifier = Modifier.padding(start = 16.dp),
+                            color = Color(0xff6A6C6A)
+                        )
+                    }
+                    Text(
+                        text = "This is your trust score, used as a bases to determine the various activities you do on Credit Score.",
+                        fontSize = 12.sp,
+                        fontFamily = interFontsRegular,
+                        modifier = Modifier.padding(start = 16.dp, top = 16.dp),
                         color = Color(0xff6A6C6A)
                     )
                 }
-                Text(
-                    text = "This is your trust score, used as a bases to determine the various activities you do on Credit Score.",
-                    fontSize = 12.sp,
-                    fontFamily = interFontsRegular,
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp),
-                    color = Color(0xff6A6C6A)
-                )
             }
-
-
         }
+        
         Divider("General")
-        LazyColumn() {
+        LazyColumn(modifier = Modifier.weight(1f)) {
             items(1){ card ->
                 DataCardItem("Account Details", R.drawable.account_details)
             }
