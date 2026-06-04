@@ -35,14 +35,23 @@ class ManageProfileViewModel @Inject constructor(
         lastName = nameParts.getOrNull(1) ?: ""
 
         val birthDate = sessionManager.getBirthDate() ?: ""
-        val dateParts = birthDate.split("/")
-        day = dateParts.getOrNull(0) ?: ""
-        month = dateParts.getOrNull(1) ?: ""
-        year = dateParts.getOrNull(2) ?: ""
+        val dateParts = if (birthDate.contains("-")) birthDate.split("-") else birthDate.split("/")
+        
+        if (birthDate.contains("-")) {
+            // Formato YYYY-MM-DD
+            year = dateParts.getOrNull(0) ?: ""
+            month = dateParts.getOrNull(1) ?: ""
+            day = dateParts.getOrNull(2) ?: ""
+        } else {
+            // Formato DD/MM/YYYY
+            day = dateParts.getOrNull(0) ?: ""
+            month = dateParts.getOrNull(1) ?: ""
+            year = dateParts.getOrNull(2) ?: ""
+        }
 
         address = sessionManager.getAddress() ?: ""
-        // City and Postal code are not explicitly in SessionManager yet, 
-        // but we can infer them or just load from what we have.
+        city = sessionManager.getCity() ?: ""
+        postalCode = sessionManager.getPostalCode() ?: ""
         
         val phone = sessionManager.getPhone() ?: ""
         if (phone.contains("-")) {
@@ -68,7 +77,10 @@ class ManageProfileViewModel @Inject constructor(
             phone = phone,
             birthDate = birthDate,
             address = address,
-            avatar = sessionManager.getAvatar()
+            city = city,
+            postalCode = postalCode,
+            avatar = sessionManager.getAvatar(),
+            isVerified = sessionManager.isVerified()
         )
         onSuccess()
     }

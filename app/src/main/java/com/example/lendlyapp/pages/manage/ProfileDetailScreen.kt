@@ -2,69 +2,29 @@ package com.example.lendlyapp.pages.manage
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.lendlyapp.R
-import com.example.lendlyapp.components.Divider
 import com.example.lendlyapp.components.PrimaryButton
-import com.example.lendlyapp.data.session.SessionManager
 import com.example.lendlyapp.ui.theme.interFontsMedium
 import com.example.lendlyapp.ui.theme.montserratFontsSemiBold
 
 @Composable
 fun ProfileDetailScreen(
-    sessionManager: SessionManager,
+    viewModel: ManageProfileViewModel,
     onBack: () -> Unit
 ){
-    val name = sessionManager.getFullName() ?: ""
-    val nameParts = name.split(" ")
-    var fullName by remember { mutableStateOf(nameParts.getOrNull(0) ?: "") }
-    var lastName by remember { mutableStateOf(nameParts.getOrNull(1) ?: "") }
-
-    val birthDate = sessionManager.getBirthDate() ?: ""
-    val parts = birthDate.split("-")
-    var day by remember { mutableStateOf(parts.getOrNull(2) ?: "") }
-    var month by remember { mutableStateOf(parts.getOrNull(1) ?: "") }
-    var year by remember { mutableStateOf(parts.getOrNull(0) ?: "") }
-
-    var address by remember { mutableStateOf(sessionManager.getAddress() ?: "") }
-    var city by remember { mutableStateOf("") }
-    var postalCode by remember { mutableStateOf("") }
-
-    val phone = sessionManager.getPhone() ?: ""
-    val phoneParts = phone.split("-")
-    var phonePrefix by remember { mutableStateOf(phoneParts.getOrNull(0) ?: "") }
-    var phoneNumber by remember { mutableStateOf(phoneParts.getOrNull(1) ?: "") }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,16 +43,16 @@ fun ProfileDetailScreen(
             ){
                 Image(
                     painter = painterResource(R.drawable.back_arrow),
-                    contentDescription = "BackArrow",
+                    contentDescription = "Back",
                     modifier = Modifier.size(width = 40.dp, height = 40.dp).padding(start = 8.dp)
                 )
             }
         }
         Text(
-            text = "Enter your personal details",
+            text = "Edit Profile",
             fontFamily = montserratFontsSemiBold,
             fontSize = 28.sp,
-            modifier = Modifier.padding(start = 16.dp)
+            modifier = Modifier.padding(start = 16.dp).fillMaxWidth()
         )
         Text(
             text = "Full legal first and middle name(s)",
@@ -103,16 +63,14 @@ fun ProfileDetailScreen(
             color = Color(0xff454745)
         )
         OutlinedTextField(
-            value = fullName,
-            onValueChange = { fullName = it},
+            value = viewModel.firstName,
+            onValueChange = { viewModel.firstName = it},
             modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).fillMaxWidth(),
             placeholder = {Text("John D.") },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF6A6C6A),
-                unfocusedBorderColor = Color(0xFF6A6C6A),
-                focusedLabelColor = Color(0xFF6A6C6A),
-                unfocusedLabelColor = Color(0xFF6A6C6A),
+                unfocusedBorderColor = Color(0xFF6A6C6A)
             )
         )
         Text(
@@ -124,16 +82,14 @@ fun ProfileDetailScreen(
             color = Color(0xff454745)
         )
         OutlinedTextField(
-            value = lastName,
-            onValueChange = { lastName = it},
+            value = viewModel.lastName,
+            onValueChange = { viewModel.lastName = it},
             modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).fillMaxWidth(),
             placeholder = {Text("Doe") },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF6A6C6A),
-                unfocusedBorderColor = Color(0xFF6A6C6A),
-                focusedLabelColor = Color(0xFF6A6C6A),
-                unfocusedLabelColor = Color(0xFF6A6C6A),
+                unfocusedBorderColor = Color(0xFF6A6C6A)
             )
         )
         Text(
@@ -144,76 +100,64 @@ fun ProfileDetailScreen(
             textAlign = TextAlign.Start,
             color = Color(0xff454745)
         )
-        Row() {
-            Column(){
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(modifier = Modifier.weight(1f)){
                 Text(
                     text = "Day",
                     fontFamily = interFontsMedium,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                    textAlign = TextAlign.Start,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 8.dp),
                     color = Color(0xff6A6C6A)
                 )
 
                 OutlinedTextField(
-                    value = day,
-                    onValueChange = { day = it},
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).width(84.5.dp),
+                    value = viewModel.day,
+                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) viewModel.day = it},
                     placeholder = { Text("08")},
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF6A6C6A),
-                        unfocusedBorderColor = Color(0xFF6A6C6A),
-                        focusedLabelColor = Color(0xFF6A6C6A),
-                        unfocusedLabelColor = Color(0xFF6A6C6A),
+                        unfocusedBorderColor = Color(0xFF6A6C6A)
                     )
                 )
             }
-            Column(){
+            Column(modifier = Modifier.weight(1f)){
                 Text(
                     text = "Month",
                     fontFamily = interFontsMedium,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                    textAlign = TextAlign.Start,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 8.dp),
                     color = Color(0xff6A6C6A)
                 )
 
                 OutlinedTextField(
-                    value = month,
-                    onValueChange = { month = it},
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).width(84.5.dp),
+                    value = viewModel.month,
+                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 2) viewModel.month = it},
                     placeholder = { Text("12")},
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF6A6C6A),
-                        unfocusedBorderColor = Color(0xFF6A6C6A),
-                        focusedLabelColor = Color(0xFF6A6C6A),
-                        unfocusedLabelColor = Color(0xFF6A6C6A),
+                        unfocusedBorderColor = Color(0xFF6A6C6A)
                     )
                 )
             }
-            Column(){
+            Column(modifier = Modifier.weight(1.5f)){
                 Text(
                     text = "Year",
                     fontFamily = interFontsMedium,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp),
-                    textAlign = TextAlign.Start,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 8.dp),
                     color = Color(0xff6A6C6A)
                 )
 
                 OutlinedTextField(
-                    value = year,
-                    onValueChange = { year = it},
-                    modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).width(160.dp),
+                    value = viewModel.year,
+                    onValueChange = { if (it.all { c -> c.isDigit() } && it.length <= 4) viewModel.year = it},
                     placeholder = {Text("1997") },
                     shape = RoundedCornerShape(8.dp),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = Color(0xFF6A6C6A),
-                        unfocusedBorderColor = Color(0xFF6A6C6A),
-                        focusedLabelColor = Color(0xFF6A6C6A),
-                        unfocusedLabelColor = Color(0xFF6A6C6A),
+                        unfocusedBorderColor = Color(0xFF6A6C6A)
                     )
                 )
             }
@@ -227,16 +171,14 @@ fun ProfileDetailScreen(
             color = Color(0xFF6A6C6A)
         )
         OutlinedTextField(
-            value = address,
-            onValueChange = { address = it},
+            value = viewModel.address,
+            onValueChange = { viewModel.address = it},
             modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).fillMaxWidth(),
             placeholder = {Text("Somewhere IN BLOCK 12") },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF6A6C6A),
-                unfocusedBorderColor = Color(0xFF6A6C6A),
-                focusedLabelColor = Color(0xFF6A6C6A),
-                unfocusedLabelColor = Color(0xFF6A6C6A),
+                unfocusedBorderColor = Color(0xFF6A6C6A)
             )
         )
         Text(
@@ -248,16 +190,14 @@ fun ProfileDetailScreen(
             color = Color(0xFF6A6C6A)
         )
         OutlinedTextField(
-            value = city,
-            onValueChange = { city = it},
+            value = viewModel.city,
+            onValueChange = { viewModel.city = it},
             modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).fillMaxWidth(),
             placeholder = {Text("Davao City") },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF6A6C6A),
-                unfocusedBorderColor = Color(0xFF6A6C6A),
-                focusedLabelColor = Color(0xFF6A6C6A),
-                unfocusedLabelColor = Color(0xFF6A6C6A),
+                unfocusedBorderColor = Color(0xFF6A6C6A)
             )
         )
         Text(
@@ -269,16 +209,14 @@ fun ProfileDetailScreen(
             color = Color(0xFF6A6C6A)
         )
         OutlinedTextField(
-            value = postalCode,
-            onValueChange = { postalCode = it},
+            value = viewModel.postalCode,
+            onValueChange = { if (it.all { c -> c.isDigit() }) viewModel.postalCode = it},
             modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).fillMaxWidth(),
             placeholder = {Text("8000") },
             shape = RoundedCornerShape(8.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Color(0xFF6A6C6A),
-                unfocusedBorderColor = Color(0xFF6A6C6A),
-                focusedLabelColor = Color(0xFF6A6C6A),
-                unfocusedLabelColor = Color(0xFF6A6C6A),
+                unfocusedBorderColor = Color(0xFF6A6C6A)
             )
         )
         Text(
@@ -289,49 +227,38 @@ fun ProfileDetailScreen(
             textAlign = TextAlign.Start,
             color = Color(0xFF454745)
         )
-        Row() {
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedTextField(
-                value = phonePrefix,
-                onValueChange = { phonePrefix = it},
+                value = viewModel.phonePrefix,
+                onValueChange = { viewModel.phonePrefix = it},
                 modifier = Modifier.padding(top = 8.dp).width(84.5.dp),
                 placeholder = { Text("+65")},
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF6A6C6A),
-                    unfocusedBorderColor = Color(0xFF6A6C6A),
-                    focusedLabelColor = Color(0xFF6A6C6A),
-                    unfocusedLabelColor = Color(0xFF6A6C6A),
+                    unfocusedBorderColor = Color(0xFF6A6C6A)
                 )
             )
             OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it},
-                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp).width(265.dp),
+                value = viewModel.phoneNumber,
+                onValueChange = { if (it.all { c -> c.isDigit() }) viewModel.phoneNumber = it},
+                modifier = Modifier.padding(top = 8.dp).weight(1f),
                 placeholder = { Text("991251255")},
                 shape = RoundedCornerShape(8.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color(0xFF6A6C6A),
-                    unfocusedBorderColor = Color(0xFF6A6C6A),
-                    focusedLabelColor = Color(0xFF6A6C6A),
-                    unfocusedLabelColor = Color(0xFF6A6C6A),
+                    unfocusedBorderColor = Color(0xFF6A6C6A)
                 )
             )
         }
         HorizontalDivider(
             thickness = 1.dp,
             color = Color(0xFF6A6C6A),
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 16.dp)
         )
         PrimaryButton("Save", onClick = {
-            onBack()
+                viewModel.saveChanges(onSuccess = onBack)
             },
-            modifier = Modifier.padding(top = 8.dp))
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 32.dp))
     }
 }
-
-/*
-@Preview(showBackground = true)
-@Composable
-fun ProfileDetailScreenPreview() {
-    ProfileDetailScreen()
-}*/
