@@ -1,6 +1,7 @@
 package com.example.lendlyapp.data.network
 
 import com.example.lendlyapp.data.model.*
+import com.example.lendlyapp.pages.history.TransactionResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -26,4 +27,7 @@ interface ApiService {
     // Solicitar un nuevo préstamo
     @POST("loans/apply")
     suspend fun applyForLoan(@Body request: LoanApplyRequest): Any
+
+    @GET("transactions")
+    suspend fun getTransactions(): TransactionResponse
 }

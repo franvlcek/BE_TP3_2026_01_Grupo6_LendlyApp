@@ -28,7 +28,12 @@ fun SplashScreen(
         delay(1000) // opcional branding
 
         if (sessionManager.isSessionActive()) {
-            onNavigate("home")
+            if (sessionManager.isVerified()) {
+                onNavigate("home")
+            } else {
+                // Si tiene sesión iniciada pero no completó los pasos de onboarding/verificación
+                onNavigate("verify_phone")
+            }
         } else {
             onNavigate("onboarding")
         }

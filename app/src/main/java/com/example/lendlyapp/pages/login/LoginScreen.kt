@@ -44,6 +44,31 @@ fun LoginScreen(
         }
     }
 
+    if (viewModel.showRegisterDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissRegisterDialog() },
+            title = { Text("Account not found") },
+            text = { Text("We couldn't find an account for this email. Would you like to create a new one?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.dismissRegisterDialog()
+                        onNavigateToRegister()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF7BF179))
+                ) {
+                    Text("Register", color = Color(0xFF102000))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissRegisterDialog() }) {
+                    Text("Try again", color = Color.Gray)
+                }
+            },
+            containerColor = Color.White
+        )
+    }
+
     Scaffold(
         containerColor = Color.White
     ) { innerPadding ->

@@ -172,7 +172,15 @@ class MainActivity : ComponentActivity() {
                             val verifyPhoneViewModel: com.example.lendlyapp.pages.verification.VerifyPhoneViewModel = hiltViewModel()
                             VerifyPhoneScreen(
                                 viewModel = verifyPhoneViewModel,
-                                onNavigateBack = { navController.popBackStack() },
+                                onNavigateBack = { 
+                                    if (!navController.popBackStack()) {
+                                        // Si no hay nada atrás, limpiamos y volvemos al inicio
+                                        sessionManager.wipeAllData()
+                                        navController.navigate(Screen.Onboarding.route) {
+                                            popUpTo(0)
+                                        }
+                                    }
+                                },
                                 onNavigateToSms = { navController.navigate(Screen.SmsVerification.route) }
                             )
                         }

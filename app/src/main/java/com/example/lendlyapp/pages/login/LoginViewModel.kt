@@ -44,6 +44,9 @@ class LoginViewModel @Inject constructor(
     var displayName by mutableStateOf("")
         private set
 
+    var showRegisterDialog by mutableStateOf(false)
+        private set
+
     init {
         // Al iniciar, verificamos si hay un usuario previo en la sesión
         val savedEmail = sessionManager.getEmail()
@@ -63,7 +66,7 @@ class LoginViewModel @Inject constructor(
         isUserSelected = false
         email = ""
         displayName = ""
-        sessionManager.clearSession()
+        sessionManager.wipeAllData() // Borrado total al cambiar de usuario
     }
 
     fun onPasswordChanged(newPassword: String) {
@@ -76,9 +79,15 @@ class LoginViewModel @Inject constructor(
      * Al usar viewModelScope.launch, nos metemos en una corrutina de Kotlin
      * para que la app no se congele mientras espera la respuesta de internet.
      */
+    fun dismissRegisterDialog() {
+        showRegisterDialog = false
+    }
+
     fun onLoginClicked() {
         val emailPattern = android.util.Patterns.EMAIL_ADDRESS
         
+        android.util.Log.d("LoginVM", "Botón Log In presionado. Email: $email")
+
         if (email.isBlank() || password.isBlank()) {
             errorMessage = "Por favor, completa todos los campos."
             return
@@ -95,11 +104,17 @@ class LoginViewModel @Inject constructor(
             val result = authRepository.login(request)
 
             result.onSuccess {
-                // Leemos el estado final de verificación (que incluye el parche del Mock)
+                android.util.Log.d("LoginVM", "Login exitoso en el ViewModel")
                 isVerified = sessionManager.isVerified()
                 loginSuccess = true
             }
             result.onFailure { exception ->
+                android.util.Log.e("LoginVM", "Fallo el login: ${exception.message}")
+                
+                // Si es un error que sugiere que el usuario no existe o hay problemas de red recurrentes
+                if (exception is IOException || (exception is HttpException && (exception.code() == 404 || exception.code() == 401))) {
+                    showRegisterDialog = true
+                }
 
                 errorMessage = when (exception) {
                     is IOException -> "Error de conexión. Revisa tu internet."
