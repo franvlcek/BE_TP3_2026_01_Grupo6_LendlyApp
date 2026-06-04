@@ -6,6 +6,7 @@ import com.example.lendlyapp.data.model.ProductResponse
 import com.example.lendlyapp.data.model.RegisterRequest
 import com.example.lendlyapp.data.model.RegisterResponse
 import com.example.lendlyapp.data.model.UserResponse
+import com.example.lendlyapp.pages.history.TransactionResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -23,4 +24,7 @@ interface ApiService {
 
     @GET("products")
     suspend fun getProducts(): ProductResponse
+
+    @GET("transactions")
+    suspend fun getTransactions(): TransactionResponse
 }

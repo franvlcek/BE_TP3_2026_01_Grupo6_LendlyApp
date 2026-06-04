@@ -20,20 +20,28 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lendlyapp.R
 import com.example.lendlyapp.components.HistoryItem
 import com.example.lendlyapp.components.TransactionType
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
-import com.example.lendlyapp.ui.theme.interFontsRegular
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
+
+data class FilterData(val name: String, val width: Dp)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    onNavigateToDetail: () -> Unit,
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToDetail: (String) -> Unit,
+    onNavigateToProfile: () -> Unit = {},
+    viewModel: HistoryViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
     val filters = listOf(
         FilterData("All", 50.dp),
@@ -116,7 +124,7 @@ fun HistoryScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3. Filtros Horizontales con medidas de Figma
+            // 3. Filtros Horizontales
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -159,72 +167,56 @@ fun HistoryScreen(
 
             HorizontalDivider(modifier = Modifier.padding(top = 16.dp), color = Color(0xFFF0F0F0))
 
-            // 4. Lista de Transacciones
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                item {
-                    Text(
-                        text = "Today",
-                        fontFamily = interFontsRegular,
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-
-                item {
-                    Box(modifier = Modifier.clickable { onNavigateToDetail() }) {
-                        HistoryItem(
-                            title = "Paid this month",
-                            time = "9:07 AM",
-                            amount = "1,255.00 PHP",
-                            company = "Apple Inc.",
-                            type = TransactionType.PAYMENT
-                        )
+            // 4. Lista de Transacciones Dinámica
+            when (val state = uiState) {
+                is HistoryUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF00C853))
                     }
                 }
-
-                item {
-                    HistoryItem(
-                        title = "Paid this month",
-                        time = "9:07 AM",
-                        amount = "1,255.00 PHP",
-                        company = "Apple Inc.",
-                        type = TransactionType.PAYMENT
-                    )
+                is HistoryUiState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = "Error: ${state.message}", color = Color.Red)
+                            Button(onClick = { viewModel.loadTransactions() }) {
+                                Text("Retry")
+                            }
+                        }
+                    }
                 }
+                is HistoryUiState.Success -> {
+                    val filteredTransactions = state.transactions.filter {
+                        it.title.contains(searchQuery, ignoreCase = true) || 
+                        it.description.contains(searchQuery, ignoreCase = true)
+                    }
 
-                item {
-                    HistoryItem(
-                        title = "Added",
-                        time = "9:07 AM",
-                        amount = "1,200.00 PHP",
-                        company = "Apple Inc.",
-                        type = TransactionType.ADDED
-                    )
-                }
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(filteredTransactions) { transaction ->
+                            val formattedTime = try {
+                                val zdt = ZonedDateTime.parse(transaction.date)
+                                zdt.format(DateTimeFormatter.ofPattern("hh:mm a", Locale.ENGLISH))
+                            } catch (e: Exception) {
+                                transaction.date
+                            }
 
-                item {
-                    Text(
-                        text = "Recent Loans",
-                        fontFamily = interFontsRegular,
-                        fontSize = 14.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-                
-                item {
-                    HistoryItem(
-                        title = "iPhone 15 Pro Max",
-                        time = "02/08/2024",
-                        amount = "Paid",
-                        company = "Apple Inc.",
-                        type = TransactionType.PAYMENT
-                    )
+                            val transactionType = when (transaction.type) {
+                                "CASH_IN", "LOAN_DISBURSEMENT" -> TransactionType.ADDED
+                                else -> TransactionType.PAYMENT
+                            }
+
+                            Box(modifier = Modifier.clickable { onNavigateToDetail(transaction.id) }) {
+                                HistoryItem(
+                                    title = transaction.title,
+                                    time = formattedTime,
+                                    amount = "${String.format(Locale.US, "%.2f", transaction.amount)} ${transaction.currency}",
+                                    company = transaction.description,
+                                    type = transactionType
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
-
-data class FilterData(val name: String, val width: androidx.compose.ui.unit.Dp)
