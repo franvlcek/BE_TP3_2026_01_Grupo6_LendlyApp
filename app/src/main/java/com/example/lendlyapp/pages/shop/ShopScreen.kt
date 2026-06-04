@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.lendlyapp.R
 import com.example.lendlyapp.data.model.Product
 
@@ -299,7 +300,7 @@ fun ShopScreen(
                 } else {
                     items(viewModel.recommendedProducts.size) { index ->
                         val product = viewModel.recommendedProducts[index]
-                        ProductItem(product.name, product.price, product.imageResId) { onNavigateToProduct(product.id) }
+                        ProductItem(product.name, product.price, product.imageResId, product.imageUrl) { onNavigateToProduct(product.id) }
                     }
                 }
             }
@@ -317,7 +318,7 @@ fun ShopScreen(
                 } else {
                     items(viewModel.bestSellers.size) { index ->
                         val product = viewModel.bestSellers[index]
-                        ProductItem(product.name, product.price, product.imageResId) { onNavigateToProduct(product.id) }
+                        ProductItem(product.name, product.price, product.imageResId, product.imageUrl) { onNavigateToProduct(product.id) }
                     }
                 }
             }
@@ -406,7 +407,7 @@ fun BrandItem(name: String, imageRes: Int, logoRes: Int) {
 }
 
 @Composable
-fun ProductItem(name: String, price: String, imageRes: Int, onClick: () -> Unit = {}) {
+fun ProductItem(name: String, price: String, imageRes: Int? = null, imageUrl: String? = null, onClick: () -> Unit = {}) {
     Box(
         modifier = Modifier
             .width(160.dp)
@@ -429,13 +430,21 @@ fun ProductItem(name: String, price: String, imageRes: Int, onClick: () -> Unit 
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = imageRes),
-                    contentDescription = name,
-                    modifier = Modifier
-                        .size(120.dp),
-                    contentScale = ContentScale.Fit
-                )
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = imageUrl,
+                        contentDescription = name,
+                        modifier = Modifier.size(120.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else if (imageRes != null) {
+                    Image(
+                        painter = painterResource(id = imageRes),
+                        contentDescription = name,
+                        modifier = Modifier.size(120.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
 
             // Texto inferior

@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.lendlyapp.R
 
 private data class BadgeUi(val icon: String, val text: String)
@@ -29,7 +31,8 @@ private data class ProductUi(
     val title: String,
     val subtitle: String,
     val price: String,
-    val imageRes: Int,
+    val imageRes: Int? = null,
+    val imageUrl: String? = null,
     val locationText: String,
     val badges: List<BadgeUi>,
     val merchants: List<MerchantUi>,
@@ -117,12 +120,22 @@ private val productCatalog = mapOf(
 @Composable
 fun ProductScreen(
     productId: String = "iphone",
+    viewModel: ProductViewModel,
     onNavigateBack: () -> Unit = {},
     onContinue: () -> Unit = {}
 ) {
-    val product = remember(productId) {
-        productCatalog[productId] ?: productCatalog.getValue("iphone")
+    LaunchedEffect(productId) {
+        viewModel.loadProduct(productId)
     }
+
+    val apiProduct = viewModel.product
+    val localUi = productCatalog[productId] ?: productCatalog.getValue("iphone")
+
+    // Merged data: Prioritize API data for core fields
+    val displayTitle = apiProduct?.name ?: localUi.title
+    val displayPrice = if (apiProduct != null) "₱${apiProduct.price}" else localUi.price
+    val displayImageRes = apiProduct?.imageResId ?: localUi.imageRes
+    val displayImageUrl = apiProduct?.imageUrl
 
     Scaffold(
         containerColor = Color.White,
@@ -130,7 +143,7 @@ fun ProductScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = product.title,
+                        text = displayTitle,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -148,113 +161,128 @@ fun ProductScreen(
             )
         }
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF8DF07D))
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                product.badges.forEach { badge ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text(text = badge.icon, fontSize = 14.sp)
-                        Text(text = badge.text, fontSize = 12.sp, color = Color(0xFF102000), fontWeight = FontWeight.Medium)
-                    }
-                }
+        if (viewModel.isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = Color(0xFF7BF179))
             }
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .height(220.dp)
-                    .background(Color.White, RoundedCornerShape(20.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Image(
-                    painter = painterResource(id = product.imageRes),
-                    contentDescription = "Product image",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color.White,
-                    tonalElevation = 0.dp,
-                    shadowElevation = 1.dp
-                ) {
-                    Text(
-                        text = "1/4",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        fontSize = 12.sp,
-                        color = Color(0xFF666666)
-                    )
-                }
-            }
-
+        } else {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Text(
-                    text = "From as low as",
-                    fontSize = 12.sp,
-                    color = Color(0xFF8A8A8A)
-                )
-                Text(
-                    text = product.price,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-                Text(
-                    text = product.subtitle,
-                    fontSize = 13.sp,
-                    color = Color(0xFF222222),
-                    modifier = Modifier.padding(top = 4.dp)
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF8DF07D))
+                        .padding(horizontal = 12.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    localUi.badges.forEach { badge ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(text = badge.icon, fontSize = 14.sp)
+                            Text(text = badge.text, fontSize = 12.sp, color = Color(0xFF102000), fontWeight = FontWeight.Medium)
+                        }
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(220.dp)
+                        .background(Color.White, RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (displayImageUrl != null) {
+                        AsyncImage(
+                            model = displayImageUrl,
+                            contentDescription = "Product image",
+                            modifier = Modifier.fillMaxSize().padding(24.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    } else if (displayImageRes != null) {
+                        Image(
+                            painter = painterResource(id = displayImageRes),
+                            contentDescription = "Product image",
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(24.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = Color.White,
+                        tonalElevation = 0.dp,
+                        shadowElevation = 1.dp
+                    ) {
+                        Text(
+                            text = "1/4",
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            fontSize = 12.sp,
+                            color = Color(0xFF666666)
+                        )
+                    }
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = "From as low as",
+                        fontSize = 12.sp,
+                        color = Color(0xFF8A8A8A)
+                    )
+                    Text(
+                        text = displayPrice,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = localUi.subtitle,
+                        fontSize = 13.sp,
+                        color = Color(0xFF222222),
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+
+                SectionTitle(title = "WHERE DO YOU WANT TO SHOP?")
+                ShopLocationCard(locationText = localUi.locationText)
+
+                SectionTitle(title = "MAKE A DEAL? PARTNER MERCHANTS")
+                localUi.merchants.forEach { merchant ->
+                    MerchantCard(merchantName = merchant.name)
+                }
+
+                SectionTitle(title = "FEATURES")
+                localUi.features.forEach { feature ->
+                    FeatureItem(title = feature.title, text = feature.text)
+                }
+
+                SectionTitle(title = "PRODUCT SPECIFICATIONS")
+                localUi.specs.forEach { spec ->
+                    SpecItem(label = spec.label, value = spec.value)
+                }
+
+                Spacer(modifier = Modifier.height(96.dp))
             }
-
-            SectionTitle(title = "WHERE DO YOU WANT TO SHOP?")
-            ShopLocationCard(locationText = product.locationText)
-
-            SectionTitle(title = "MAKE A DEAL? PARTNER MERCHANTS")
-            product.merchants.forEach { merchant ->
-                MerchantCard(merchantName = merchant.name)
-            }
-
-            SectionTitle(title = "FEATURES")
-            product.features.forEach { feature ->
-                FeatureItem(title = feature.title, text = feature.text)
-            }
-
-            SectionTitle(title = "PRODUCT SPECIFICATIONS")
-            product.specs.forEach { spec ->
-                SpecItem(label = spec.label, value = spec.value)
-            }
-
-            Spacer(modifier = Modifier.height(96.dp))
         }
 
         Box(
@@ -277,7 +305,7 @@ fun ProductScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(text = "From as low as", fontSize = 11.sp, color = Color(0xFF8A8A8A))
-                        Text(text = product.price, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(text = displayPrice, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                         Text(text = "per month", fontSize = 11.sp, color = Color(0xFF8A8A8A))
                     }
                     Button(
@@ -407,16 +435,3 @@ private fun SpecItem(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-private fun ProductScreenPreview() {
-    ProductScreen()
-}
-
-
-
-
-
-
-
