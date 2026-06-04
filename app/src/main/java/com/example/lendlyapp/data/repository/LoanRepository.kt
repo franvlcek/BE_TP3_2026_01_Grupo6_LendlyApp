@@ -17,7 +17,9 @@ class LoanRepository @Inject constructor(
     suspend fun getLoans(): Result<List<LoanModel>> {
         return try {
             val response = apiService.getLoans()
-            Result.success(response.loans.map { it.toDomain() })
+            // Manejamos el caso de que 'loans' sea null
+            val domainList = response.loans?.map { it.toDomain() } ?: emptyList()
+            Result.success(domainList)
         } catch (e: Exception) {
             Result.failure(e)
         }

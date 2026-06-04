@@ -32,7 +32,8 @@ class SessionManager @Inject constructor(
         city: String? = null,
         postalCode: String? = null,
         avatar: String? = null,
-        isVerified: Boolean = false
+        isVerified: Boolean = false,
+        availableBalance: Double = 0.0
     ) {
         prefs.edit {
             putString("auth_token", token)
@@ -46,6 +47,7 @@ class SessionManager @Inject constructor(
             putString("postal_code", postalCode)
             putString("avatar", avatar)
             putBoolean("is_verified", isVerified)
+            putFloat("available_balance", availableBalance.toFloat())
         }
         _tokenFlow.value = token
         _userIdFlow.value = userId
@@ -62,6 +64,7 @@ class SessionManager @Inject constructor(
     fun getPostalCode(): String? = prefs.getString("postal_code", null)
     fun getAvatar(): String? = prefs.getString("avatar", null)
     fun isVerified(): Boolean = prefs.getBoolean("is_verified", false)
+    fun getAvailableBalance(): Double = prefs.getFloat("available_balance", 0.0f).toDouble()
     
     fun setVerified(verified: Boolean) {
         prefs.edit { putBoolean("is_verified", verified) }

@@ -51,7 +51,8 @@ class AuthRepository @Inject constructor(
                     city = finalCity,
                     postalCode = finalPostalCode,
                     avatar = response.user.avatar,
-                    isVerified = finalVerified
+                    isVerified = finalVerified,
+                    availableBalance = response.user.availableBalance
                 )
             }
 
@@ -79,7 +80,8 @@ class AuthRepository @Inject constructor(
                 city = null,
                 postalCode = null,
                 avatar = null,
-                isVerified = false
+                isVerified = false,
+                availableBalance = 0.0
             )
             
             android.util.Log.d("AuthRepo", "¡Registro exitoso y guardado localmente! ID: ${response.finalId}")

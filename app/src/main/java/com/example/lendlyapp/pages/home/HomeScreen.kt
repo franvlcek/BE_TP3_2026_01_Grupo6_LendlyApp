@@ -31,8 +31,8 @@ fun HomeScreen(
     onNavigateToProduct: (String) -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
 ) {
-    val profile = viewModel.userProfile
-    val balance = if (profile != null) "₱ ${String.format(Locale.US, "%,.2f", profile.availableBalance)}" else "₱ 0.00"
+    // Usamos el balance del ViewModel que tiene el fallback de la sesión
+    val balanceText = "₱ ${String.format(Locale.US, "%,.2f", viewModel.balance)}"
     
     Scaffold(
         topBar = {
@@ -48,7 +48,7 @@ fun HomeScreen(
             // 1. Tarjeta de Saldo
             item {
                 AccountBalanceCard(
-                    balance = balance,
+                    balance = balanceText,
                     onCashInClick = onNavigateToCashIn
                 )
             }
@@ -63,7 +63,7 @@ fun HomeScreen(
                     companyName = "Nike Inc.",
                     amount = "₱400.00",
                     dueDate = "Fees of February",
-                    logoResId = R.drawable.logo_nike // Aseguramos que sea Nike el que va arriba
+                    logoResId = R.drawable.logo_nike
                 )
             }
             
@@ -76,7 +76,7 @@ fun HomeScreen(
                     companyName = "Apple Inc.",
                     amount = "₱1,500.00",
                     dueDate = "Fees of March",
-                    logoResId = R.drawable.logo_apple // Aseguramos que sea Apple el que va abajo
+                    logoResId = R.drawable.logo_apple
                 )
             }
 
