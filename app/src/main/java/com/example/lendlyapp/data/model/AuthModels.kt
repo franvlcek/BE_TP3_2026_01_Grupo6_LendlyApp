@@ -8,6 +8,7 @@ data class LoginRequest(
 )
 
 data class LoginResponse(
+    val success: Boolean,
     val token: String,
     val user: UserProfile
 )
@@ -22,11 +23,9 @@ data class RegisterRequest(
 data class RegisterResponse(
     val success: Boolean,
     val message: String,
-    @SerializedName("id") val id: String? = null,
-    @SerializedName("userId") val userId: String? = null
-) {
-    val finalId: String? get() = id ?: userId
-}
+    val user: UserProfile?,
+    val token: String?
+)
 
 data class UserResponse(
     val success: Boolean,

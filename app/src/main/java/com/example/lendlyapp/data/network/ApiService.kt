@@ -26,7 +26,7 @@ interface ApiService {
 
     // Solicitar un nuevo préstamo
     @POST("loans/apply")
-    suspend fun applyForLoan(@Body request: LoanApplyRequest): Any
+    suspend fun applyForLoan(@Body request: LoanApplyRequest): LoanApplyResponse
 
     @GET("transactions")
     suspend fun getTransactions(): TransactionResponse

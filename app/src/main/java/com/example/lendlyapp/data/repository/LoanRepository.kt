@@ -7,32 +7,38 @@ import com.example.lendlyapp.data.network.ApiService
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * REPOSITORIO: Única fuente de verdad de la data de préstamos.
+ * BUENA PRÁCTICA: Abstrae la fuente de datos (podría ser Room o Retrofit).
+ */
 @Singleton
 class LoanRepository @Inject constructor(
-    private val apiService: ApiService
+    private val apiService: ApiService // Inyección de dependencia vía Hilt
 ) {
     /**
-     * Trae la lista de préstamos y los mapea a modelos de dominio
+     * Lógica de obtención de datos.
+     * Encapsula la respuesta en un Result para un manejo de errores robusto.
      */
     suspend fun getLoans(): Result<List<LoanModel>> {
         return try {
             val response = apiService.getLoans()
-            // Manejamos el caso de que 'loans' sea null
+            // Transformamos los DTOs a modelos de dominio antes de mandarlos al ViewModel
             val domainList = response.loans?.map { it.toDomain() } ?: emptyList()
             Result.success(domainList)
         } catch (e: Exception) {
+            // Aquí capturamos errores de red o parsing
             Result.failure(e)
         }
     }
 
     /**
-     * Envía la solicitud de un nuevo préstamo
+     * Lógica de solicitud de préstamo.
      */
-    suspend fun applyForLoan(amount: Double, plan: String, purpose: String): Result<Boolean> {
+    suspend fun applyForLoan(amount: Double, term: Int, purpose: String): Result<Boolean> {
         return try {
-            val request = LoanApplyRequest(amount, plan, purpose)
-            apiService.applyForLoan(request)
-            Result.success(true)
+            val request = LoanApplyRequest(amount, term, purpose)
+            val response = apiService.applyForLoan(request)
+            Result.success(response.success)
         } catch (e: Exception) {
             Result.failure(e)
         }
