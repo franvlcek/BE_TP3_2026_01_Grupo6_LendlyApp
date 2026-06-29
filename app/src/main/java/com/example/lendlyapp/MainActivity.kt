@@ -29,6 +29,7 @@ import com.example.lendlyapp.pages.loan.LoanScreen
 import com.example.lendlyapp.pages.loan.LoanFormScreen
 import com.example.lendlyapp.pages.loan.LoanSuccessScreen
 import com.example.lendlyapp.pages.loan.ActiveLoansScreen
+import com.example.lendlyapp.pages.notification.NotificationPage
 import com.example.lendlyapp.components.BottomNavigationBar
 import com.example.lendlyapp.data.session.SessionManager
 import com.example.lendlyapp.pages.manage.CreditScoreScreen
@@ -287,6 +288,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToProfile = {
                                     navController.navigate(Screen.Manage.route)
+                                },
+                                onNavigateToNotifications = {
+                                    navController.navigate(Screen.Notifications.route)
                                 }
                             )
                         }
@@ -306,6 +310,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToProfile = {
                                     navController.navigate(Screen.Manage.route)
+                                },
+                                onNavigateToNotifications = {
+                                    navController.navigate(Screen.Notifications.route)
                                 }
                             )
                         }
@@ -358,14 +365,25 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onNavigateToProfile = {
                                     navController.navigate(Screen.Manage.route)
+                                },
+                                onNavigateToNotifications = {
+                                    navController.navigate(Screen.Notifications.route)
                                 }
                             )
                         }
 
                         composable(Screen.Loan.route) {
-                            LoanScreen(onNavigateToForm = {
-                                navController.navigate(Screen.LoanForm.route)
-                            })
+                            LoanScreen(
+                                onNavigateToForm = {
+                                    navController.navigate(Screen.LoanForm.route)
+                                },
+                                onNavigateToProfile = {
+                                    navController.navigate(Screen.Manage.route)
+                                },
+                                onNavigateToNotifications = {
+                                    navController.navigate(Screen.Notifications.route)
+                                }
+                            )
                         }
 
                         composable(Screen.LoanForm.route) {
@@ -394,6 +412,14 @@ class MainActivity : ComponentActivity() {
                             ActiveLoansScreen(
                                 viewModel = loanViewModel,
                                 onNavigateBack = { navController.popBackStack() }
+                            )
+                        }
+
+                        composable(Screen.Notifications.route) {
+                            val notificationViewModel: com.example.lendlyapp.pages.notification.NotificationViewModel = hiltViewModel()
+                            NotificationPage(
+                                navController = navController,
+                                viewModel = notificationViewModel
                             )
                         }
 
@@ -467,6 +493,9 @@ class MainActivity : ComponentActivity() {
                                 },
                                 onCreditScore = {
                                     navController.navigate(Screen.CreditScore.route)
+                                },
+                                onNotifications = {
+                                    navController.navigate(Screen.Notifications.route)
                                 }
                             )
                         }

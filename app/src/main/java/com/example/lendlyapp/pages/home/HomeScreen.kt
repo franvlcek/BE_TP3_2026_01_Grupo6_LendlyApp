@@ -29,14 +29,18 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToCashIn: () -> Unit,
     onNavigateToProduct: (String) -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     // Usamos el balance del ViewModel que tiene el fallback de la sesión
     val balanceText = "₱ ${String.format(Locale.US, "%,.2f", viewModel.balance)}"
     
     Scaffold(
         topBar = {
-            HomeTopBar(onNavigateToProfile = onNavigateToProfile)
+            HomeTopBar(
+                onNavigateToProfile = onNavigateToProfile,
+                onNavigateToNotifications = onNavigateToNotifications
+            )
         }
     ) { innerPadding ->
         LazyColumn(
@@ -127,7 +131,8 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopBar(
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -148,7 +153,7 @@ fun HomeTopBar(
             }
         },
         actions = {
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = onNavigateToNotifications) {
                 Icon(
                     imageVector = Icons.Default.Notifications, 
                     contentDescription = "Notifications",

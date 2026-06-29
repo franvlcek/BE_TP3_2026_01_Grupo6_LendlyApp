@@ -39,6 +39,7 @@ data class FilterData(val name: String, val width: Dp)
 fun HistoryScreen(
     onNavigateToDetail: (String) -> Unit,
     onNavigateToProfile: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {},
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -73,7 +74,7 @@ fun HistoryScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO Notifications */ }) {
+                    IconButton(onClick = onNavigateToNotifications) {
                         Icon(
                             imageVector = Icons.Default.Notifications, 
                             contentDescription = "Notifications",

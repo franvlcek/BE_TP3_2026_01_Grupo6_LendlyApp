@@ -30,7 +30,8 @@ fun ManageScreen(
     viewModel: ManageViewModel,
     onLogout: () -> Unit,
     onEditProfile: () -> Unit,
-    onCreditScore: () -> Unit
+    onCreditScore: () -> Unit,
+    onNotifications: () -> Unit = {}
 ){
     val profile = viewModel.userProfile
 
@@ -43,7 +44,10 @@ fun ManageScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ){
-        TopBar(onProfileClick = onEditProfile)
+        TopBar(
+            onProfileClick = onEditProfile,
+            onNotificationsClick = onNotifications
+        )
         Spacer(modifier = Modifier.padding(top = 16.dp))
         
         Column(

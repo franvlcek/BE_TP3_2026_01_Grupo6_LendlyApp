@@ -34,7 +34,9 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoanScreen(
-    onNavigateToForm: () -> Unit
+    onNavigateToForm: () -> Unit,
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     val montserratSemiBold = FontFamily(Font(R.font.montserrat_extra_bold, FontWeight.SemiBold))
 
@@ -49,7 +51,7 @@ fun LoanScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /* TODO Profile */ }) {
+                    IconButton(onClick = onNavigateToProfile) {
                         Icon(
                             imageVector = Icons.Default.Person,
                             contentDescription = "Profile",
@@ -59,7 +61,7 @@ fun LoanScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* TODO Notifications */ }) {
+                    IconButton(onClick = onNavigateToNotifications) {
                         Icon(
                             imageVector = Icons.Default.Notifications,
                             contentDescription = "Notifications",

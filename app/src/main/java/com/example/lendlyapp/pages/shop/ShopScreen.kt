@@ -50,7 +50,8 @@ fun ShopScreen(
     onNavigateToProduct: (String) -> Unit = {},
     onNavigateToSearch: () -> Unit = {},
     onNavigateToFilter: () -> Unit = {},
-    onNavigateToProfile: () -> Unit = {}
+    onNavigateToProfile: () -> Unit = {},
+    onNavigateToNotifications: () -> Unit = {}
 ) {
     val pagerState = rememberPagerState(pageCount = { 3 })
     val promoItems = listOf(
@@ -93,7 +94,7 @@ fun ShopScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Notifications */ }) {
+                    IconButton(onClick = onNavigateToNotifications) {
                         Icon(
                             painter = painterResource(id = R.drawable.notification_icon),
                             contentDescription = "Notifications",
