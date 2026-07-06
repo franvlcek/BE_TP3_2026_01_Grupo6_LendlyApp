@@ -62,8 +62,8 @@ class AuthRepository @Inject constructor(
             val response = apiService.register(request)
             
             sessionManager.saveSession(
-                token = "temp_token",
-                userId = response.finalId ?: "0",
+                token = response.token ?: "temp_token",
+                userId = response.user?.id?.toString() ?: "0",
                 fullName = request.fullName,
                 email = request.email,
                 phone = request.phone,
