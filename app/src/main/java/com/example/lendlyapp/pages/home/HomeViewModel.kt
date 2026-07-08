@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lendlyapp.data.model.UserProfile
 import com.example.lendlyapp.data.repository.UserRepository
+import com.example.lendlyapp.data.repository.TransactionRepository
 import com.example.lendlyapp.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val transactionRepository: TransactionRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -41,6 +43,21 @@ class HomeViewModel @Inject constructor(
                     if (response.user != null) {
                         balance = response.user.availableBalance
                     }
+                }
+            isLoading = false
+        }
+    }
+
+    /**
+     * Realiza un Cash-In y actualiza el estado local.
+     */
+    fun performCashIn(amount: Double, method: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            isLoading = true
+            transactionRepository.performCashIn(amount, method)
+                .onSuccess {
+                    balance += amount
+                    onSuccess()
                 }
             isLoading = false
         }

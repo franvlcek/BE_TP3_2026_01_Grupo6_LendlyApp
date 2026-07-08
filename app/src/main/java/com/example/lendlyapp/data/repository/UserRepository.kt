@@ -57,4 +57,18 @@ class UserRepository @Inject constructor(
             Result.failure(e)
         }
     }
+
+    /**
+     * Marca al usuario como verificado en Firestore y localmente.
+     */
+    suspend fun verifyUser(): Result<Unit> {
+        val userId = sessionManager.getUserId() ?: return Result.failure(Exception("No user logged in"))
+        return try {
+            firestore.collection("users").document(userId).update("isVerified", true).await()
+            sessionManager.setVerified(true)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

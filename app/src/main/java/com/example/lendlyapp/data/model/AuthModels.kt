@@ -32,11 +32,15 @@ data class UserResponse(
     val user: UserProfile?
 )
 
+/**
+ * IMPORTANTE: Todos los campos tienen valores por defecto ("") 
+ * para que Firestore pueda crear una instancia vacía y luego llenarla (Reflexión).
+ */
 data class UserProfile(
-    val id: String, // Cambiado de Int a String para Firebase UIDs
-    val fullName: String,
-    val phone: String,
-    val email: String,
+    val id: String = "",
+    val fullName: String = "",
+    val phone: String = "",
+    val email: String = "",
     val avatar: String? = null,
     val birthDate: String? = null,
     val address: String? = null,

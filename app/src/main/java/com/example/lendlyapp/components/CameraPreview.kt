@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.lifecycle.compose.LocalLifecycleOwner // 🌟 IMPORTACIÓN MODERNA CORREGIDA (Saca el Warning)
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
 
 @Composable
 fun CameraPreview(
@@ -36,7 +38,9 @@ fun CameraPreview(
 
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> = remember { 
+        ProcessCameraProvider.getInstance(context) 
+    }
 
     AndroidView(
         modifier = modifier,
@@ -50,12 +54,12 @@ fun CameraPreview(
             }
 
             cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                val preview = Preview.Builder().build().also {
-                    it.surfaceProvider = previewView.surfaceProvider
-                }
-
                 try {
+                    val cameraProvider = cameraProviderFuture.get()
+                    val preview = Preview.Builder().build().also {
+                        it.surfaceProvider = previewView.surfaceProvider
+                    }
+
                     cameraProvider.unbindAll()
 
                     // Verificamos si la cámara seleccionada existe, si no usamos la de atrás
@@ -70,6 +74,10 @@ fun CameraPreview(
                         selector,
                         preview
                     )
+                } catch (e: ExecutionException) {
+                    e.printStackTrace()
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

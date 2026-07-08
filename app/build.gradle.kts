@@ -81,6 +81,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
+    implementation("com.google.guava:guava:33.2.1-android")
 
     //Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
