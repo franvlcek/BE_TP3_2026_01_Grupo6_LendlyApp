@@ -8,7 +8,7 @@ data class LoginRequest(
 )
 
 data class LoginResponse(
-    val success: Boolean,
+    val success: Boolean = true,
     val token: String,
     val user: UserProfile
 )
@@ -23,8 +23,8 @@ data class RegisterRequest(
 data class RegisterResponse(
     val success: Boolean,
     val message: String,
-    val user: UserProfile?,
-    val token: String?
+    val user: UserProfile? = null,
+    val token: String? = null
 )
 
 data class UserResponse(
@@ -33,7 +33,7 @@ data class UserResponse(
 )
 
 data class UserProfile(
-    val id: Int,
+    val id: String, // Cambiado de Int a String para Firebase UIDs
     val fullName: String,
     val phone: String,
     val email: String,

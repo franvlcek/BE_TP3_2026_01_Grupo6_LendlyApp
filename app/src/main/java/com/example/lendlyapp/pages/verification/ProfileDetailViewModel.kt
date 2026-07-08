@@ -167,7 +167,8 @@ class ProfileDetailViewModel @Inject constructor(
                 city = city,
                 postalCode = postalCode,
                 avatar = sessionManager.getAvatar(),
-                isVerified = false // Sigue en flujo de verificación
+                isVerified = false,
+                availableBalance = sessionManager.getAvailableBalance()
             )
             onSuccess()
         }

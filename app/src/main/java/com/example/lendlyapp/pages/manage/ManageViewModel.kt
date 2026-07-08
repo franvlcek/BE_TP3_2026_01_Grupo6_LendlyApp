@@ -51,7 +51,7 @@ class ManageViewModel @Inject constructor(
                 .onFailure {
                     // Fallback to local session data if API fails
                     userProfile = UserProfile(
-                        id = sessionManager.getUserId()?.toIntOrNull() ?: 0,
+                        id = sessionManager.getUserId() ?: "0",
                         email = sessionManager.getEmail() ?: "",
                         fullName = sessionManager.getFullName() ?: "User",
                         phone = sessionManager.getPhone() ?: "",

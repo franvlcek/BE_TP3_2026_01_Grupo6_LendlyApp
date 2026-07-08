@@ -4,13 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.lendlyapp.data.model.UserProfile
 import com.example.lendlyapp.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ManageProfileViewModel @Inject constructor(
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val userRepository: com.example.lendlyapp.data.repository.UserRepository
 ) : ViewModel() {
 
     var firstName by mutableStateOf("")
@@ -69,9 +73,8 @@ class ManageProfileViewModel @Inject constructor(
         val birthDate = "$day/$month/$year"
         val phone = if (phoneNumber.isNotBlank()) "$phonePrefix-$phoneNumber" else ""
 
-        sessionManager.saveSession(
-            token = sessionManager.getToken() ?: "",
-            userId = sessionManager.getUserId() ?: "",
+        val updatedProfile = UserProfile(
+            id = sessionManager.getUserId() ?: "",
             fullName = fullName,
             email = sessionManager.getEmail() ?: "",
             phone = phone,
@@ -80,8 +83,30 @@ class ManageProfileViewModel @Inject constructor(
             city = city,
             postalCode = postalCode,
             avatar = sessionManager.getAvatar(),
-            isVerified = sessionManager.isVerified()
+            isVerified = sessionManager.isVerified(),
+            availableBalance = sessionManager.getAvailableBalance()
         )
-        onSuccess()
+
+        viewModelScope.launch {
+            // Sincronizamos con Firestore
+            userRepository.saveUserProfile(updatedProfile)
+
+            // Guardamos localmente
+            sessionManager.saveSession(
+                token = sessionManager.getToken() ?: "",
+                userId = updatedProfile.id,
+                fullName = updatedProfile.fullName,
+                email = updatedProfile.email,
+                phone = updatedProfile.phone,
+                birthDate = updatedProfile.birthDate,
+                address = updatedProfile.address,
+                city = updatedProfile.city,
+                postalCode = updatedProfile.postalCode,
+                avatar = updatedProfile.avatar,
+                isVerified = updatedProfile.isVerified,
+                availableBalance = updatedProfile.availableBalance
+            )
+            onSuccess()
+        }
     }
 }
