@@ -10,6 +10,11 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import android.content.Context
+import androidx.room.Room
+import com.example.lendlyapp.data.database.AppDatabase
+import com.example.lendlyapp.data.database.UserDao
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 import java.util.concurrent.TimeUnit
 
@@ -40,5 +45,26 @@ object AppModule {
             .addConverterFactory(GsonConverterFactory.create()) // Gson solicitado por la cátedra
             .build()
             .create(ApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext context: Context
+    ): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            "lendly_database"
+        )
+        .fallbackToDestructiveMigration()
+        .build()
+    }
+
+    @Provides
+    fun provideUserDao(
+        database: AppDatabase
+    ): UserDao {
+        return database.userDao()
     }
 }

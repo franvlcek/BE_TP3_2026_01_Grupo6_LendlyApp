@@ -1,5 +1,6 @@
 package com.example.lendlyapp.data.repository
 
+import com.example.lendlyapp.data.database.UserDao
 import com.example.lendlyapp.data.model.LoginRequest
 import com.example.lendlyapp.data.model.LoginResponse
 import com.example.lendlyapp.data.model.RegisterRequest
@@ -8,11 +9,13 @@ import com.example.lendlyapp.data.network.ApiService
 import com.example.lendlyapp.data.session.SessionManager
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.example.lendlyapp.data.mapper.toEntity
 
 @Singleton
 class AuthRepository @Inject constructor(
     private val apiService: ApiService,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val userDao: UserDao
 ) {
     suspend fun login(request: LoginRequest): Result<LoginResponse> {
         return try {
@@ -26,6 +29,7 @@ class AuthRepository @Inject constructor(
                 if (localEmail != null && !localEmail.equals(response.user.email, ignoreCase = true)) {
                     android.util.Log.d("AuthRepo", "Cambio de usuario detectado. Limpiando datos previos.")
                     sessionManager.wipeAllData()
+                    userDao.deleteUser()
                 }
 
                 val isJohnDoe = response.user.email.lowercase().contains("john.doe")
@@ -47,7 +51,13 @@ class AuthRepository @Inject constructor(
                     isVerified = finalVerified,
                     availableBalance = response.user.availableBalance
                 )
-                android.util.Log.d("AuthRepo", "Login exitoso. Verificado: $finalVerified")
+
+                // Persistir en Room
+                userDao.insertUser(
+                    response.user.toEntity().copy(isVerified = finalVerified)
+                )
+
+                android.util.Log.d("AuthRepo", "Login exitoso. Perfil guardado en Room.")
             }
             Result.success(response)
         } catch (e: Exception) {
@@ -61,9 +71,12 @@ class AuthRepository @Inject constructor(
             android.util.Log.d("AuthRepo", "Registrando: ${request.email}")
             val response = apiService.register(request)
             
+            val token = response.token ?: "temp_token"
+            val userId = response.user?.id?.toString() ?: "0"
+
             sessionManager.saveSession(
-                token = "temp_token",
-                userId = response.finalId ?: "0",
+                token = token,
+                userId = userId,
                 fullName = request.fullName,
                 email = request.email,
                 phone = request.phone,
@@ -75,6 +88,12 @@ class AuthRepository @Inject constructor(
                 isVerified = false,
                 availableBalance = 0.0
             )
+
+            // Si la API devolvió un usuario, lo guardamos en Room
+            response.user?.let {
+                userDao.insertUser(it.toEntity())
+            }
+
             Result.success(response)
         } catch (e: Exception) {
             android.util.Log.e("AuthRepo", "Error en registro: ${e.message}")
@@ -84,7 +103,10 @@ class AuthRepository @Inject constructor(
 
     fun isUserLoggedIn(): Boolean = sessionManager.isSessionActive()
 
-    fun logout() {
+    suspend fun logout() {
         sessionManager.clearSession()
+        userDao.deleteUser()
     }
+
+    fun getUser() = userDao.getUser()
 }
