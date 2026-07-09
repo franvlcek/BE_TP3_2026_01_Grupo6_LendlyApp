@@ -4,12 +4,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.example.lendlyapp.data.repository.AuthRepository
 import com.example.lendlyapp.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class ManageProfileViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
@@ -29,6 +31,7 @@ class ManageProfileViewModel @Inject constructor(
     }
 
     private fun loadData() {
+
         val name = sessionManager.getFullName() ?: ""
         val nameParts = name.split(" ")
         firstName = nameParts.getOrNull(0) ?: ""
@@ -62,6 +65,7 @@ class ManageProfileViewModel @Inject constructor(
             phonePrefix = "+65"
             phoneNumber = phone
         }
+
     }
 
     fun saveChanges(onSuccess: () -> Unit) {
