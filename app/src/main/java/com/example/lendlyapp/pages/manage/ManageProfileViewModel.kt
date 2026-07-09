@@ -4,15 +4,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.example.lendlyapp.data.repository.AuthRepository
+import androidx.lifecycle.viewModelScope
+import com.example.lendlyapp.data.model.UserProfile
 import com.example.lendlyapp.data.session.SessionManager
+import com.example.lendlyapp.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ManageProfileViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     var firstName by mutableStateOf("")
@@ -62,7 +65,7 @@ class ManageProfileViewModel @Inject constructor(
             phonePrefix = phoneParts.getOrNull(0) ?: ""
             phoneNumber = phoneParts.getOrNull(1) ?: ""
         } else {
-            phonePrefix = "+65"
+            phonePrefix = "+63" // Cambiado a Filipinas (+63) dado el contexto de pesos filipinos
             phoneNumber = phone
         }
 
@@ -73,9 +76,8 @@ class ManageProfileViewModel @Inject constructor(
         val birthDate = "$day/$month/$year"
         val phone = if (phoneNumber.isNotBlank()) "$phonePrefix-$phoneNumber" else ""
 
-        sessionManager.saveSession(
-            token = sessionManager.getToken() ?: "",
-            userId = sessionManager.getUserId() ?: "",
+        val updatedProfile = UserProfile(
+            id = sessionManager.getUserId() ?: "",
             fullName = fullName,
             email = sessionManager.getEmail() ?: "",
             phone = phone,
@@ -84,8 +86,30 @@ class ManageProfileViewModel @Inject constructor(
             city = city,
             postalCode = postalCode,
             avatar = sessionManager.getAvatar(),
-            isVerified = sessionManager.isVerified()
+            isVerified = sessionManager.isVerified(),
+            availableBalance = sessionManager.getAvailableBalance()
         )
-        onSuccess()
+
+        viewModelScope.launch {
+            // Sincronizamos con Firestore y Room
+            userRepository.saveUserProfile(updatedProfile)
+
+            // Guardamos localmente en SessionManager (para compatibilidad con el resto del flujo)
+            sessionManager.saveSession(
+                token = sessionManager.getToken() ?: "",
+                userId = updatedProfile.id,
+                fullName = updatedProfile.fullName,
+                email = updatedProfile.email,
+                phone = updatedProfile.phone,
+                birthDate = updatedProfile.birthDate,
+                address = updatedProfile.address,
+                city = updatedProfile.city,
+                postalCode = updatedProfile.postalCode,
+                avatar = updatedProfile.avatar,
+                isVerified = updatedProfile.isVerified,
+                availableBalance = updatedProfile.availableBalance
+            )
+            onSuccess()
+        }
     }
 }

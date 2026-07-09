@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.lendlyapp" />
+                  <option name="mobileSdkAppId" value="1:385331862659:android:e8692a5e4235db09ac4fb6" />
+                  <option name="projectId" value="lendlyapp-7f4ad" />
+                  <option name="projectNumber" value="385331862659" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

@@ -4,13 +4,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.lendlyapp.data.model.UserProfile
+import com.example.lendlyapp.data.repository.UserRepository
+import com.example.lendlyapp.data.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileDetailViewModel @Inject constructor(
-    private val sessionManager: com.example.lendlyapp.data.session.SessionManager
+    private val sessionManager: SessionManager,
+    private val userRepository: UserRepository
 ) : ViewModel() {
 
     var firstName by mutableStateOf("")
@@ -45,6 +51,9 @@ class ProfileDetailViewModel @Inject constructor(
     var postalCodeError by mutableStateOf<String?>(null)
         private set
     var phoneError by mutableStateOf<String?>(null)
+        private set
+    
+    var isLoading by mutableStateOf(false)
         private set
 
     fun onFirstNameChanged(newValue: String) {
@@ -154,22 +163,44 @@ class ProfileDetailViewModel @Inject constructor(
         }
 
         if (!hasError) {
-            // Guardamos los datos reales en la sesión local para que persistan
-            val fullName = "$firstName $lastName"
-            sessionManager.saveSession(
-                token = sessionManager.getToken() ?: "temp_token",
-                userId = sessionManager.getUserId() ?: "0",
-                fullName = fullName,
-                email = sessionManager.getEmail() ?: "",
-                phone = phone,
-                birthDate = "$day/$month/$year",
-                address = address,
-                city = city,
-                postalCode = postalCode,
-                avatar = sessionManager.getAvatar(),
-                isVerified = false // Sigue en flujo de verificación
-            )
-            onSuccess()
+            viewModelScope.launch {
+                isLoading = true
+                val fullName = "$firstName $lastName"
+                val updatedProfile = UserProfile(
+                    id = sessionManager.getUserId() ?: "0",
+                    fullName = fullName,
+                    email = sessionManager.getEmail() ?: "",
+                    phone = phone,
+                    birthDate = "$day/$month/$year",
+                    address = address,
+                    city = city,
+                    postalCode = postalCode,
+                    avatar = sessionManager.getAvatar(),
+                    isVerified = sessionManager.isVerified(),
+                    availableBalance = sessionManager.getAvailableBalance()
+                )
+
+                // 1. Guardar en Firestore
+                userRepository.saveUserProfile(updatedProfile).onSuccess {
+                    // 2. Guardar en sesión local
+                    sessionManager.saveSession(
+                        token = sessionManager.getToken() ?: "temp_token",
+                        userId = updatedProfile.id,
+                        fullName = updatedProfile.fullName,
+                        email = updatedProfile.email,
+                        phone = updatedProfile.phone,
+                        birthDate = updatedProfile.birthDate,
+                        address = updatedProfile.address,
+                        city = updatedProfile.city,
+                        postalCode = updatedProfile.postalCode,
+                        avatar = updatedProfile.avatar,
+                        isVerified = updatedProfile.isVerified,
+                        availableBalance = updatedProfile.availableBalance
+                    )
+                    onSuccess()
+                }
+                isLoading = false
+            }
         }
     }
 }

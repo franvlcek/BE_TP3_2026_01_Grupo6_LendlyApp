@@ -7,7 +7,9 @@ import com.example.lendlyapp.data.model.UserProfile
 import com.example.lendlyapp.data.model.UserResponse
 import com.example.lendlyapp.data.network.ApiService
 import com.example.lendlyapp.data.session.SessionManager
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,32 +17,87 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val apiService: ApiService,
     private val sessionManager: SessionManager,
+    private val firestore: FirebaseFirestore,
     private val userDao: UserDao
 ) {
     // Escucha cambios del usuario en tiempo real desde Room
     fun getLocalUser(): Flow<UserEntity?> = userDao.getUser()
 
+    /**
+     * Obtiene el perfil del usuario. 
+     * Prioriza Firestore para datos dinámicos, usa la API Mock como respaldo inicial.
+     * Siempre actualiza Room con los datos obtenidos.
+     */
     suspend fun getUserProfile(): Result<UserResponse> {
         val userId = sessionManager.getUserId() ?: return Result.failure(Exception("No user logged in"))
         
-        if (userId == "0") {
-            android.util.Log.d("UserRepo", "Usuario local (ID 0). Saltando llamada a API.")
-            return Result.failure(Exception("Local user"))
-        }
-
         return try {
-            android.util.Log.d("UserRepo", "Pidiendo perfil a la API para el ID: $userId")
-            val response = apiService.getUserProfile(userId)
+            // Intentamos obtener el perfil desde Firestore (Datos reales centralizados)
+            val document = firestore.collection("users").document(userId).get().await()
             
-            // Persistir en Room si la respuesta es exitosa
-            response.user?.let { profile ->
-                userDao.insertUser(profile.toEntity())
+            val userProfile = if (document.exists()) {
+                val user = document.toObject(UserProfile::class.java)
+                android.util.Log.d("UserRepo", "Perfil cargado desde Firestore para: $userId")
+                user
+            } else {
+                // Si no existe en Firestore (ej: usuario migrado o primer login), usamos la API Mock
+                android.util.Log.d("UserRepo", "Documento no existe en Firestore. Usando API Mock.")
+                val apiResponse = apiService.getUserProfile(userId)
+                apiResponse.user
             }
-            
-            android.util.Log.d("UserRepo", "¡Perfil recibido con éxito! Nombre: ${response.user?.fullName}")
-            Result.success(response)
+
+            if (userProfile != null) {
+                // Actualizar Room
+                userDao.insertUser(userProfile.toEntity())
+                // Si no estaba en Firestore, lo guardamos para la próxima
+                if (!document.exists()) {
+                    saveUserProfile(userProfile)
+                }
+                Result.success(UserResponse(success = true, user = userProfile))
+            } else {
+                Result.failure(Exception("User profile not found"))
+            }
         } catch (e: Exception) {
             android.util.Log.e("UserRepo", "Error al obtener perfil: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Guarda o actualiza el perfil del usuario en Firestore y Room.
+     */
+    suspend fun saveUserProfile(profile: UserProfile): Result<Unit> {
+        return try {
+            // Actualizar Firestore
+            firestore.collection("users").document(profile.id).set(profile).await()
+            // Actualizar Room
+            userDao.insertUser(profile.toEntity())
+            android.util.Log.d("UserRepo", "Perfil guardado en Firestore y Room con éxito.")
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("UserRepo", "Error al guardar perfil: ${e.message}")
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Marca al usuario como verificado en Firestore, Room y localmente.
+     */
+    suspend fun verifyUser(): Result<Unit> {
+        val userId = sessionManager.getUserId() ?: return Result.failure(Exception("No user logged in"))
+        return try {
+            // Firestore
+            firestore.collection("users").document(userId).update("isVerified", true).await()
+            // SessionManager
+            sessionManager.setVerified(true)
+            // Room: Obtenemos el usuario actual y lo actualizamos
+            val currentUser = userDao.getUserOnce() // Necesitaría este método en UserDao o hacerlo vía query
+            currentUser?.let {
+                userDao.insertUser(it.copy(isVerified = true))
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            android.util.Log.e("UserRepo", "Error al verificar usuario: ${e.message}")
             Result.failure(e)
         }
     }

@@ -8,7 +8,7 @@ data class LoginRequest(
 )
 
 data class LoginResponse(
-    val success: Boolean,
+    val success: Boolean = true,
     val token: String,
     val user: UserProfile
 )
@@ -23,8 +23,8 @@ data class RegisterRequest(
 data class RegisterResponse(
     val success: Boolean,
     val message: String,
-    val user: UserProfile?,
-    val token: String?
+    val user: UserProfile? = null,
+    val token: String? = null
 )
 
 data class UserResponse(
@@ -32,11 +32,15 @@ data class UserResponse(
     val user: UserProfile?
 )
 
+/**
+ * IMPORTANTE: Todos los campos tienen valores por defecto ("") 
+ * para que Firestore pueda crear una instancia vacía y luego llenarla (Reflexión).
+ */
 data class UserProfile(
-    val id: Int,
-    val fullName: String,
-    val phone: String,
-    val email: String,
+    val id: String = "",
+    val fullName: String = "",
+    val phone: String = "",
+    val email: String = "",
     val avatar: String? = null,
     val birthDate: String? = null,
     val address: String? = null,

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.lendlyapp.ui.theme.interFontsSemiBold
 import com.example.lendlyapp.ui.theme.interFontsRegular
 
@@ -24,9 +25,10 @@ import com.example.lendlyapp.ui.theme.interFontsRegular
 @Composable
 fun CashInAmountScreen(
     onNavigateBack: () -> Unit,
-    onNextClick: (String) -> Unit
+    onNextClick: (String) -> Unit,
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
-    var amount by remember { mutableStateOf("2,500.00") }
+    var amountText by remember { mutableStateOf("2500.00") }
 
     Scaffold(
         topBar = {
@@ -41,22 +43,37 @@ fun CashInAmountScreen(
             )
         },
         bottomBar = {
-            Button(
-                onClick = { onNextClick(amount) },
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(48.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
-                shape = RoundedCornerShape(50.dp)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Next",
-                    fontFamily = interFontsSemiBold,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold, // NEGRITA
-                    color = Color(0xFF102000) // Color oscuro de Figma
-                )
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = Color(0xFF00C853))
+                } else {
+                    Button(
+                        onClick = { 
+                            val amount = amountText.replace(",", "").toDoubleOrNull() ?: 0.0
+                            viewModel.performCashIn(amount, "Online Bank") {
+                                onNextClick(amountText)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00C853)),
+                        shape = RoundedCornerShape(50.dp)
+                    ) {
+                        Text(
+                            text = "Next",
+                            fontFamily = interFontsSemiBold,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF102000)
+                        )
+                    }
+                }
             }
         }
     ) { innerPadding ->
@@ -75,7 +92,7 @@ fun CashInAmountScreen(
             )
 
             Text(
-                text = "Balance: ₱0.00",
+                text = "Balance: ₱${String.format("%.2f", viewModel.balance)}",
                 fontFamily = interFontsRegular,
                 fontSize = 14.sp,
                 color = Color.Gray,
@@ -95,8 +112,8 @@ fun CashInAmountScreen(
                         fontWeight = FontWeight.Bold
                     )
                     BasicTextField(
-                        value = amount,
-                        onValueChange = { amount = it },
+                        value = amountText,
+                        onValueChange = { amountText = it },
                         textStyle = TextStyle(
                             fontFamily = interFontsSemiBold,
                             fontSize = 32.sp,

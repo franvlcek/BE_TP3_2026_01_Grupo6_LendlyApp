@@ -49,7 +49,8 @@ class VerifyPhoneViewModel @Inject constructor(
                 city = sessionManager.getCity(),
                 postalCode = sessionManager.getPostalCode(),
                 avatar = sessionManager.getAvatar(),
-                isVerified = sessionManager.isVerified()
+                isVerified = sessionManager.isVerified(),
+                availableBalance = sessionManager.getAvailableBalance()
             )
             onSuccess()
         } else {
