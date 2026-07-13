@@ -129,13 +129,10 @@ class MainActivity : ComponentActivity() {
                             val loginViewModel: com.example.lendlyapp.pages.login.LoginViewModel = hiltViewModel()
                             LoginScreen(
                                 viewModel = loginViewModel,
-                                onNavigateToHome = { isVerified ->
-                                    if (isVerified) {
-                                        navController.navigate(Screen.Home.route) {
-                                            popUpTo(Screen.Login.route) { inclusive = true }
-                                        }
-                                    } else {
-                                        navController.navigate(Screen.VerifyPhone.route)
+                                onNavigateToHome = { _ ->
+                                    // Bypass de verificación: siempre vamos al Home tras login exitoso
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.Login.route) { inclusive = true }
                                     }
                                 },
                                 onNavigateToRegister = {
@@ -266,11 +263,13 @@ class MainActivity : ComponentActivity() {
 
                         // 11. Registration Done
                         composable(Screen.RegistrationDone.route) {
+                            val registrationDoneViewModel: com.example.lendlyapp.pages.verification.RegistrationDoneViewModel = hiltViewModel()
                             RegistrationDoneScreen(
                                 onDone = {
-                                    sessionManager.setVerified(true)
-                                    navController.navigate(Screen.Home.route) {
-                                        popUpTo(0) { inclusive = true }
+                                    registrationDoneViewModel.finalizeRegistration {
+                                        navController.navigate(Screen.Home.route) {
+                                            popUpTo(0) { inclusive = true }
+                                        }
                                     }
                                 }
                             )

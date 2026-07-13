@@ -88,13 +88,18 @@ class UserRepository @Inject constructor(
         return try {
             // Firestore
             firestore.collection("users").document(userId).update("isVerified", true).await()
-            // SessionManager
+            
+            // SessionManager (Local Prefs)
             sessionManager.setVerified(true)
-            // Room: Obtenemos el usuario actual y lo actualizamos
-            val currentUser = userDao.getUserOnce() // Necesitaría este método en UserDao o hacerlo vía query
-            currentUser?.let {
-                userDao.insertUser(it.copy(isVerified = true))
+            
+            // Room (Base de datos local)
+            val currentUser = userDao.getUserOnce()
+            currentUser?.let { user ->
+                val updatedUser = user.copy(isVerified = true)
+                userDao.insertUser(updatedUser)
             }
+            
+            android.util.Log.d("UserRepo", "Usuario verificado en Firestore, Session y Room.")
             Result.success(Unit)
         } catch (e: Exception) {
             android.util.Log.e("UserRepo", "Error al verificar usuario: ${e.message}")
